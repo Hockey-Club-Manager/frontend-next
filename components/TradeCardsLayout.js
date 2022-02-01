@@ -11,9 +11,7 @@ export default function TradeCardsLayout({children}) {
             <Navbar bg='dark' variant='dark'>
                 <Container>
                     <Navbar.Brand href='/'>
-                        {/*<img alt='Logo' src='/logo.png' width='40' className='d-inline-block align-top' />{' '}*/}
-                        {/*NFT Hockey*/}
-                        <FontAwesomeIcon icon={faArrowLeft} />
+                        <FontAwesomeIcon icon={faArrowLeft} width='25' />
                     </Navbar.Brand>
                     <Nav className='me-auto'>
                         <Nav.Link href='/trade-cards/buy-packs' disabled={router.asPath === '/trade-cards/buy-packs'}>Buy packs</Nav.Link>
