@@ -8,7 +8,7 @@ export default function TradeCardsLayout({children}) {
 
     return (
         <>
-            <Navbar bg='dark' variant='dark'>
+           <Navbar bg='dark' variant='dark'>
                 <Container>
                     <Navbar.Brand href='/'>
                         <FontAwesomeIcon icon={faArrowLeft} width='25' />

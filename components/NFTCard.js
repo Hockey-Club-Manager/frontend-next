@@ -19,7 +19,7 @@ const DetailsOverlay = styled(Card.ImgOverlay)`
     border-radius: 20px;
 `
 
-export default function NFTCard({imgURL, year, position, name, number, role, stats}) {
+export default function NFTCard({imgURL, year, position, name, number, role, stats, detailsLink}) {
     const [showDetails, setShowDetails] = useState(false);
 
     return <SCard>
@@ -60,12 +60,15 @@ export default function NFTCard({imgURL, year, position, name, number, role, sta
                 </Row>
             </div>
         </Card.ImgOverlay>
-        <Link href='/trade-cards/buy-cards/1'>
-        <DetailsOverlay
-            className={`${showDetails ? 'd-flex' : 'd-none'} align-items-center justify-content-center`}
-            onMouseLeave={()=>setShowDetails(false)}
-        >
-            <h1 className='text-white'>Details</h1>
-        </DetailsOverlay></Link>
+        { detailsLink &&
+            <Link href={detailsLink} passHref>
+                <DetailsOverlay
+                    className={`${showDetails ? 'd-flex' : 'd-none'} align-items-center justify-content-center`}
+                    onMouseLeave={()=>setShowDetails(false)}
+                >
+                    <h1 className='text-white'>Details</h1>
+                </DetailsOverlay>
+            </Link>
+        }
     </SCard>
 }
