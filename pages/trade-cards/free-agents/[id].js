@@ -2,9 +2,9 @@ import styled from "styled-components";
 import {useState} from "react";
 import {Button, Col, Container, Form, Modal, Navbar, Row} from "react-bootstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faArrowLeft, faInfoCircle} from "@fortawesome/free-solid-svg-icons";
+import {faArrowLeft} from "@fortawesome/free-solid-svg-icons";
 import NFTCard from "../../../components/NFTCard";
-import {SModal} from "../../../components/settings";
+import InfoModal from "../../../components/InfoModal";
 
 const CardInfo = styled.div`
   background-color: aquamarine;
@@ -12,10 +12,10 @@ const CardInfo = styled.div`
   padding: 30px;
 `
 
-export default function SellCardView(ctx) {
-    const [showBuyCardPriceModal, setShowBuyCardPriceModal] = useState(false);
-    const handleBuyCardPriceModalOpen = () => setShowBuyCardPriceModal(true);
-    const handleBuyCardPriceModalClose = () => setShowBuyCardPriceModal(false);
+export default function FreeAgentsView(ctx) {
+    const [showAgentTakeback, setShowAgentTakeback] = useState(false);
+    const handleAgentTakebackOpen = () => setShowAgentTakeback(true);
+    const handleAgentTakebackClose = () => setShowAgentTakeback(false);
 
     return <>
         <Navbar bg='dark' variant='dark'>
@@ -49,38 +49,19 @@ export default function SellCardView(ctx) {
                     </CardInfo>
                     <Row className='justify-content-center mt-4'>
                         <Col className='col-auto'>
-                            <Button variant='secondary' onClick={handleBuyCardPriceModalOpen}>Buy for 6 Ⓝ</Button>
+                            <Button variant='secondary' onClick={handleAgentTakebackOpen}>Buy for 6 Ⓝ</Button>
                         </Col>
                     </Row>
                 </Col>
             </Row>
-            <SModal show={showBuyCardPriceModal} onHide={handleBuyCardPriceModalClose} centered>
-                <Modal.Header closeButton />
-                <Modal.Body>
-                    <Form>
-                        <Row>
-                            <Col><h3>Set your price for selling a <code>Name</code></h3></Col>
-                        </Row>
-                        <Row>
-                            <Col><h3><code>Surname</code></h3></Col>
-                        </Row>
-                        <Row className='justify-content-start'>
-                            <Col className='col-auto'>
-                                {/*<Col>*/}
-                                <Form.Group>
-                                    <Form.Check />
-                                </Form.Group>
-                            </Col>
-                            <Col className='col-2'><FontAwesomeIcon icon={faInfoCircle} /></Col>
-                        </Row>
-                        <Row>
-                            <Col className='text-center'>
-                                <Button onClick={handleBuyCardPriceModalClose}>Offer</Button>
-                            </Col>
-                        </Row>
-                    </Form>
-                </Modal.Body>
-            </SModal>
+            <InfoModal
+                show={showAgentTakeback}
+                onHide={handleAgentTakebackClose}
+                onBtnClick={handleAgentTakebackClose}
+                content={[
+                    <h3 key='takeback'>You are taking <code>Name Surname</code> back on roster</h3>
+                ]}
+            />
         </Container>
     </>
 }

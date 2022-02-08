@@ -6,6 +6,7 @@ import {faArrowLeft} from "@fortawesome/free-solid-svg-icons";
 import {SModal} from "../../../components/settings";
 import {Modal} from "react-bootstrap";
 import {useState} from "react";
+import InfoModal from "../../../components/InfoModal";
 
 const CardInfo = styled.div`
   background-color: aquamarine;
@@ -88,24 +89,15 @@ export default function BuyCardView(ctx) {
                </Form>
            </Modal.Body>
         </SModal>
-        <SModal show={showBuyCardConfirmModal} onHide={handleBuyCardConfirmModalClose} centered>
-            <Modal.Header closeButton />
-            <Modal.Body>
-                <Form>
-                    <Row>
-                        <Col><h3>You are buying a <code>Name Surname</code></h3></Col>
-                    </Row>
-                    <Row>
-                        <Col><h3>from <code>CardHolder</code> for <code>XXX</code> Ⓝ</h3></Col>
-                    </Row>
-                    <Row>
-                        <Col>
-                            <Button onClick={handleBuyCardConfirmModalClose}>Confirm</Button>
-                        </Col>
-                    </Row>
-                </Form>
-            </Modal.Body>
-        </SModal>
+        <InfoModal
+            show={showBuyCardConfirmModal}
+            onHide={handleBuyCardConfirmModalClose}
+            onBtnClick={handleBuyCardConfirmModalClose}
+            content={[
+                <h3 key='buy-cards-confirm-0'>You are buying a <code>Name Surname</code></h3>,
+                <h3 key='buy-cards-confirm-1'>from <code>CardHolder</code> for <code>XXX</code> Ⓝ</h3>,
+            ]}
+            />
     </Container>
     </>
 }
