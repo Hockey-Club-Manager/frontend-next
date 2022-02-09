@@ -15,7 +15,7 @@ export default function Index(ctx) {
         number={99}
         role='Best player ever'
         stats={[99,88,77,66,55]}
-        detailsLink="/trade-cards/sell-cards/1"
+        detailsLink="/trade-cards/buy-cards/1"
     />
     <Row className='justify-content-center mt-2'>
      <Col className='col-auto'>

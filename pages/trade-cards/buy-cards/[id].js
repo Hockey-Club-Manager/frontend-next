@@ -7,6 +7,7 @@ import {SModal} from "../../../components/settings";
 import {Modal} from "react-bootstrap";
 import {useState} from "react";
 import InfoModal from "../../../components/InfoModal";
+import BidModal from "../../../components/BidModal";
 
 const CardInfo = styled.div`
   background-color: aquamarine;
@@ -60,35 +61,18 @@ export default function BuyCardView(ctx) {
                 </Row>
             </Col>
         </Row>
-        <SModal show={showBuyCardOfferModal} onHide={handleBuyCardOfferModalClose} centered>
-           <Modal.Header closeButton />
-           <Modal.Body>
-               <Form>
-                   <Row>
-                       <Col><h3>Set your bid for buying a <code>Name</code></h3></Col>
-                   </Row>
-                   <Row>
-                       <Col><h3><code>Surname from CardHolder</code></h3></Col>
-                   </Row>
-                   <Row>
-                       <Col>
-                           <Form.Group>
-                               <Form.Control type='text' />
-                           </Form.Group>
-                       </Col>
-                       <Col><h2>Ⓝ</h2></Col>
-                   </Row>
-                   <Row>
-                       <Col>
-                           <Button onClick={()=>{
-                               handleBuyCardOfferModalClose();
-                               handleBuyCardConfirmModalOpen();
-                           }}>Offer</Button>
-                       </Col>
-                   </Row>
-               </Form>
-           </Modal.Body>
-        </SModal>
+        <BidModal
+            show={showBuyCardOfferModal}
+            onHide={handleBuyCardOfferModalClose}
+            onBtnClick={() => {
+                handleBuyCardOfferModalClose();
+                handleBuyCardConfirmModalOpen();
+            }}
+            content={[
+                <h3 key='buy-card-offer-0'>Set your bid for buying a <code>Name</code></h3>,
+                <h3 key='buy-card-offer-0'><code>Surname from CardHolder</code></h3>,
+            ]}
+        />
         <InfoModal
             show={showBuyCardConfirmModal}
             onHide={handleBuyCardConfirmModalClose}
