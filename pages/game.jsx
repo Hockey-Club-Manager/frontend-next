@@ -1,5 +1,6 @@
 import {Container, Row, Col, Button, Dropdown, ButtonGroup} from "react-bootstrap";
 import styled from "styled-components";
+import {useRouter} from "next/router";
 
 const Field = styled.div`
     background-color: aqua;
@@ -70,11 +71,13 @@ const Timer = styled.div`
 
 
 export default function Game() {
+    const router = useRouter();
+
     return <Container>
         <Row className='mt-4'>
             <Col className='text-center' xs={5}>
                 <h1>2</h1>
-                <Field />
+                <Field onClick={()=>router.replace('/result')} />
                 <Row className='mt-4 justify-content-between'>
                     <Col className='col-auto'>
                         <Button>Take OT</Button>
