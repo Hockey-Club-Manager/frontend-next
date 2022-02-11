@@ -1,25 +1,63 @@
 import {useState} from "react";
 import {Button, DropdownButton, Dropdown, Row, Col, Modal, Form} from "react-bootstrap";
+import styled from "styled-components";
 
-function SelectTactic()  {
-    const [ value, setValue ] = useState(50);
+const SelectTacticInputsBar = styled.div`
+     display: flex;
+     justify-content: space-between;
+
+`;
+
+function SelectTactic() {
+    const [rangeValue, setRangeValue] = useState(0)
+
     return (
-        <div className="dropdown"   style={{ width: "1000px"}}>
+        <div className="dropdown" style={{width: "1000px"}}>
             <ol className="d-grid gap-5">
-                <li>
-                    <div  style={{display: "flex", justifyContent: "space-between"}} >
-                <DropdownButton id="dropdown-basic-button" size="lg" title="-SELECT-">
-                    <Dropdown.Item href="#/action-1">Action</Dropdown.Item>
-                    <Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
-                    <Dropdown.Item href="#/action-3">Something else</Dropdown.Item>
-                </DropdownButton>
-                    <Form.Range style={{ width: "500px"}}
+                    <li>
+                        <SelectTacticInputsBar>
+                            <DropdownButton id="dropdown-basic-button" size="lg" title="-SELECT-">
+                                <Dropdown.Item href="#/action-1">Action</Dropdown.Item>
+                                <Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
+                                <Dropdown.Item href="#/action-3">Something else</Dropdown.Item>
+                            </DropdownButton>
+                            <Form.Range style={{width: "500px"}}
 
-                        value={value}
-                        onChange={e => setValue(e.target.value)}
-                        step={10}
-                    />
-                    </div>
+                                        value={rangeValue}
+                                        onChange={e => setRangeValue(e.target.value)}
+                                        step={10}
+                            />
+                        </SelectTacticInputsBar>
+                    </li>
+                <li>
+                    <SelectTacticInputsBar>
+                        <DropdownButton id="dropdown-basic-button" size="lg" title="-SELECT-">
+                            <Dropdown.Item href="#/action-1">Action</Dropdown.Item>
+                            <Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
+                            <Dropdown.Item href="#/action-3">Something else</Dropdown.Item>
+                        </DropdownButton>
+                        <Form.Range style={{width: "500px"}}
+
+                                    value={rangeValue}
+                                    onChange={e => setRangeValue(e.target.value)}
+                                    step={10}
+                        />
+                    </SelectTacticInputsBar>
+                </li>
+                <li>
+                    <SelectTacticInputsBar>
+                        <DropdownButton id="dropdown-basic-button" size="lg" title="-SELECT-">
+                            <Dropdown.Item href="#/action-1">Action</Dropdown.Item>
+                            <Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
+                            <Dropdown.Item href="#/action-3">Something else</Dropdown.Item>
+                        </DropdownButton>
+                        <Form.Range style={{width: "500px"}}
+
+                                    value={rangeValue}
+                                    onChange={e => setRangeValue(e.target.value)}
+                                    step={10}
+                        />
+                    </SelectTacticInputsBar>
                 </li>
             </ol>
         </div>
@@ -39,7 +77,7 @@ export default function SetTactics() {
             </Button>
 
             <Modal fullscreen={true} show={show} onHide={handleClose} animation={true}>
-                <Modal.Body >
+                <Modal.Body>
                     <Row className='justify-content-center mt-4'>
                         <SelectTactic/>
                     </Row>
