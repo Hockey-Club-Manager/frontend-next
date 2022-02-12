@@ -8,6 +8,8 @@ import {useState} from "react";
 
 const SCard = styled(Card)`
  border: none;
+  width: 300px;
+  height: 450px;
  
  .card-img-top {
   border-radius: 20px;

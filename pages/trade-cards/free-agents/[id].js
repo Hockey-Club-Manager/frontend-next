@@ -32,7 +32,7 @@ export default function FreeAgentsView(ctx) {
             <Row className='my-5'>
                 <Col className='col-12 col-xs-12 col-sm-12 col-md-5 mb-3'>
                     <NFTCard
-                        imgURL='/nft.png'
+                        imgURL='/nft.jpg'
                         year={2022}
                         position='LW'
                         name='Player #12'
