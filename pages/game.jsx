@@ -1,4 +1,5 @@
 import {Container, Row, Col, Button, Dropdown, ButtonGroup} from "react-bootstrap";
+import {CircleBtn, PlayingCard} from "../components/styled-components";
 import styled from "styled-components";
 import {useRouter} from "next/router";
 
@@ -8,18 +9,6 @@ const Field = styled.div`
     height: 500px;
 `
 
-const CircleBtn = styled(Button)`
-  height: 35px;
-  width: 35px;
-  border-radius: 35px;
-  padding: 0;
-  font-size: 24px;
-  
-  &.first {
-    margin-top: 300px;
-  }
-`
-
 const LogoSquare = styled.div`
   background-color: cornflowerblue;
   height: 60px;
@@ -27,29 +16,6 @@ const LogoSquare = styled.div`
   border-radius: 10px;
 `
 
-const PlayingCard = styled.div`
-  background-color: wheat;
-  height: 125px;
-  width: 80px;
-  border-radius: 10px;
-  
-  &.goalie {
-    margin-top: 220px;
-  }
-  
-  &.sm {
-    height: 65px;
-    width: 45px;
-    border: 1px solid black;
-  }
-  
-  &.bottom-left {
-    margin-left: 40px;
-  }
-  &.bottom-right {
-    margin-right: 40px;
-  }
-`
 
 const SelectDropdownBtn = styled(Button)`
   width: 300px;
@@ -93,10 +59,10 @@ export default function Game() {
             <Col>
                 <Row>
                     <Col xs={1}>
-                        <CircleBtn className='btn-circle mb-2 first' variant='outline-primary'>1</CircleBtn>
-                        <CircleBtn className='btn-circle mb-2'>2</CircleBtn>
-                        <CircleBtn className='btn-circle mb-2'>3</CircleBtn>
-                        <CircleBtn className='btn-circle'>4</CircleBtn>
+                        <CircleBtn className='mb-2 first' variant='outline-primary'>1</CircleBtn>
+                        <CircleBtn className='mb-2'>2</CircleBtn>
+                        <CircleBtn className='mb-2'>3</CircleBtn>
+                        <CircleBtn>4</CircleBtn>
                     </Col>
                     <Col xs={8}>
                         <Row className='justify-content-start'>
@@ -141,13 +107,13 @@ export default function Game() {
                         <input type='range' className='form-range' min='0' max='4'/>
                     </Col>
                     <Col>
-                        <PlayingCard className='goalie' />
+                        <PlayingCard className='goalie-game' />
                         <BenchRow className='justify-content-center'>
-                            <Col xs={1} className=' m-0'>
-                                <PlayingCard className='sm' />
+                            <Col xs={1} className='m-0'>
+                                <PlayingCard className='sm border' />
                             </Col>
-                            <Col className=' m-0'>
-                                <PlayingCard className='sm' />
+                            <Col className='m-0'>
+                                <PlayingCard className='sm border' />
                             </Col>
                         </BenchRow>
                     </Col>
