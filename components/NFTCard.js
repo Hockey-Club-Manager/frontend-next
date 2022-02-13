@@ -1,5 +1,5 @@
 import Link from "next/link";
-import {Card, Col, Row} from "react-bootstrap";
+import {Button, Card, Col, Row} from "react-bootstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faSass} from "@fortawesome/free-brands-svg-icons";
 import styled from "styled-components";
@@ -56,7 +56,7 @@ export default function NFTCard({imgURL, year, position, name, number, role, sta
                 <Row className="justify-content-center">
                     {stats.map(stat =>
                     <Col className="col-auto" key={nanoid()}>
-                            <Card.Title className='text-white'>{stat}</Card.Title>
+                        <Card.Title className='text-white'>{stat}</Card.Title>
                     </Col>
                     )}
                 </Row>
@@ -68,7 +68,7 @@ export default function NFTCard({imgURL, year, position, name, number, role, sta
                     className={`${showDetails ? 'd-flex' : 'd-none'} align-items-center justify-content-center`}
                     onMouseLeave={()=>setShowDetails(false)}
                 >
-                    <h1 className='text-white'>Details</h1>
+                    <Button variant='warning' size='lg'>Details</Button>
                 </DetailsOverlay>
             </Link>
         }
