@@ -34,7 +34,7 @@ export default function Home() {
           <SetTactics/>
 
           <Link href='/manage-team/set-lineups'><a className='btn btn-primary'>Set lineups</a></Link>
-
+          <Link href='/image-menu-test'><a className='btn btn-primary'>Image menu</a></Link>
       </main>
   )
 }
