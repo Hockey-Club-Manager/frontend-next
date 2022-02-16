@@ -1,6 +1,8 @@
-import {useState} from "react";
+import React, {useState} from "react";
 import {Button, DropdownButton, Dropdown, Row, Col, Modal, Form} from "react-bootstrap";
 import styled from "styled-components";
+import {AcceptButton, CancelButton} from "./styled-components";
+
 
 const SelectTacticInputsBar = styled.div`
      display: flex;
@@ -14,21 +16,21 @@ function SelectTactic() {
     return (
         <div className="dropdown" style={{width: "1000px"}}>
             <ol className="d-grid gap-5">
-                    <li>
-                        <SelectTacticInputsBar>
-                            <DropdownButton id="dropdown-basic-button" size="lg" title="-SELECT-">
-                                <Dropdown.Item href="#/action-1">Action</Dropdown.Item>
-                                <Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
-                                <Dropdown.Item href="#/action-3">Something else</Dropdown.Item>
-                            </DropdownButton>
-                            <Form.Range style={{width: "500px"}}
+                <li>
+                    <SelectTacticInputsBar>
+                        <DropdownButton id="dropdown-basic-button" size="lg" title="-SELECT-">
+                            <Dropdown.Item href="#/action-1">Action</Dropdown.Item>
+                            <Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
+                            <Dropdown.Item href="#/action-3">Something else</Dropdown.Item>
+                        </DropdownButton>
+                        <Form.Range style={{width: "500px"}}
 
-                                        value={rangeValue}
-                                        onChange={e => setRangeValue(e.target.value)}
-                                        step={10}
-                            />
-                        </SelectTacticInputsBar>
-                    </li>
+                                    value={rangeValue}
+                                    onChange={e => setRangeValue(e.target.value)}
+                                    step={10}
+                        />
+                    </SelectTacticInputsBar>
+                </li>
                 <li>
                     <SelectTacticInputsBar>
                         <DropdownButton id="dropdown-basic-button" size="lg" title="-SELECT-">
@@ -70,6 +72,7 @@ export default function SetTactics() {
     const handleShow = () => setShow(true);
 
 
+
     return (
         <>
             <Button variant="primary" onClick={handleShow}>
@@ -83,16 +86,16 @@ export default function SetTactics() {
                     </Row>
                 </Modal.Body>
                 <Modal.Footer className="justify-content-center align-items-center">
-                    <Row>
-                        <Col xs="auto">
-                            <Button variant="secondary" onClick={handleClose}>
+                    <Row style={{width: "280px"}}>
+                        <Col  xs="auto">
+                            <CancelButton variant="secondary" onClick={handleClose}>
                                 Cancel
-                            </Button>
+                            </CancelButton>
                         </Col>
                         <Col xs="auto">
-                            <Button variant="primary" onClick={handleClose}>
+                            <AcceptButton variant="primary" onClick={handleClose}>
                                 Apply
-                            </Button>
+                            </AcceptButton>
                         </Col>
                     </Row>
                 </Modal.Footer>
