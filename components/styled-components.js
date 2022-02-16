@@ -1,7 +1,6 @@
 import styled from "styled-components";
 import {Button} from "react-bootstrap";
 
-
 export const CircleBtn = styled(Button)`
   height: 35px;
   width: 35px;
@@ -43,6 +42,7 @@ export const PlayingCard = styled.div`
   }
 `
 
+
 export const AcceptButton = styled.button`
     width: 280px
     height: 70px;
@@ -50,11 +50,11 @@ export const AcceptButton = styled.button`
   -moz-border-radius: 60;
   border-radius: 60px;
   font-family: Venture13;
-font-style: normal;
-font-weight: normal;
-font-size: 34px;
-line-height: 32px;
-text-align: center;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 34px;
+  line-height: 32px;
+  text-align: center;
   color: #ffffff;
   font-size: 20px;
   background: #75D973;
@@ -79,12 +79,12 @@ export const CancelButton = styled.button`
   -moz-border-radius: 60;
   border-radius: 60px;
   font-family: Venture13;
-    font-size: 34px;
-    font-style: normal;
-font-weight: 400;
-line-height: 32px;
-letter-spacing: 0em;
-text-align: center;
+  font-size: 34px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 32px;
+  letter-spacing: 0em;
+  text-align: center;
 
   color: #ffffff;
   font-size: 20px;
@@ -100,3 +100,4 @@ text-align: center;
   text-decoration: none;
   transition: 0.2s linear;  
   }`
+

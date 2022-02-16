@@ -7,7 +7,7 @@ export default function BuyPacks(ctx) {
         <Row className='mx-4 my-4 gx-4 gy-4'>
             <Col className='col-4'>
                 <NFTCard
-                    imgURL='/nft.png'
+                    imgURL='/nft.jpg'
                     year={2022}
                     position='LW'
                     name='Player #12'

@@ -4,13 +4,15 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faArrowLeft, faArrowUp, faArrowDown, faTimes} from "@fortawesome/free-solid-svg-icons";
 import {AcceptButton, CancelButton, CircleBtn, PlayingCard} from "../../components/styled-components";
 
+
+
+
 const SContainer = styled(Container)`
     svg[data-prefix="fas"] {
       width: 25px;
     }
-     width: 1440px;
 
-     
+     width: 1440px;
 
 `
 const CircleButtons = styled(Col)`
