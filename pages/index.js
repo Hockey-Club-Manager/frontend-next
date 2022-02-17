@@ -72,6 +72,7 @@ export default function Home() {
 
           <Link href='/manage-team/set-lineups'><a className='btn btn-primary'>Set lineups</a></Link>
           <Link href='/image-menu-test'><a className='btn btn-primary'>Image menu</a></Link>
+          <Link href='/contracts-test'><a className='btn btn-warning'><code>contracts test</code></a></Link>
           <br/>
           {isSigned ?
               <Button variant='dark' onClick={()=>signOut()}>Sign out</Button>
