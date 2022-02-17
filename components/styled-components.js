@@ -1,5 +1,6 @@
-import styled from "styled-components";
+import styled, {createGlobalStyle} from "styled-components";
 import {Button} from "react-bootstrap";
+
 
 export const CircleBtn = styled(Button)`
   height: 35px;
@@ -72,13 +73,14 @@ export const AcceptButton = styled.button`
   }
     `
 
-
 export const CancelButton = styled.button`
+    
   width: 200px;
   -webkit-border-radius: 60;
   -moz-border-radius: 60;
   border-radius: 60px;
   font-family: Venture13;
+  font-weight: 400;
   font-size: 34px;
   font-style: normal;
   font-weight: 400;

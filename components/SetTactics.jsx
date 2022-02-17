@@ -86,14 +86,14 @@ export default function SetTactics() {
                     </Row>
                 </Modal.Body>
                 <Modal.Footer className="justify-content-center align-items-center">
-                    <Row style={{width: "280px"}}>
+                    <Row style={{display: 'flex' }}>
                         <Col  xs="auto">
                             <CancelButton variant="secondary" onClick={handleClose}>
                                 Cancel
                             </CancelButton>
                         </Col>
-                        <Col xs="auto">
-                            <AcceptButton variant="primary" onClick={handleClose}>
+                        <Col style={{paddingLeft: "400px"}} xs="auto">
+                            <AcceptButton  variant="primary" onClick={handleClose}>
                                 Apply
                             </AcceptButton>
                         </Col>

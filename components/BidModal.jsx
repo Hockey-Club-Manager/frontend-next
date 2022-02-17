@@ -1,31 +1,67 @@
 import {SModal} from "./settings";
 import {Button, Col, Form, Modal, Row} from "react-bootstrap";
 import {nanoid} from "nanoid";
+import {AcceptButton} from "./styled-components";
+import styled from "styled-components";
+
+const BidFont =  styled(Col)`
+    font-family: Venture13;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 60px;
+    line-height: 56px;
+    text-align: center;
+    color: #364EA0; 
+    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+`
+
+const PlayModalContainer = styled(Col)`
+    display: flex;
+    justify-content: center; 
+    padding: 30px;
+`
+
+const PlayModalInputContainer = styled(Row)`
+     display: flex;
+    justify-content: center; 
+    align-items: center;
+    padding: 30px;
+`
+
+const BidModalContainer = styled(SModal)`
+    .modal-content{
+        background: #ffff;
+    }
+    .modal-header{
+        border: none;
+    }
+`
 
 export default function BidModal({show, onHide, onBtnClick, content}) {
-    return <SModal show={show} onHide={onHide} centered>
+    return <BidModalContainer show={show} onHide={onHide} centered>
     <Modal.Header closeButton />
     <Modal.Body>
         <Form>
             {content.map(c => <Row key={nanoid()}>
-                <Col>
+                <BidFont>
                     {c}
-                </Col>
+                </BidFont>
             </Row>)}
-            <Row>
+            <PlayModalInputContainer>
                 <Col>
-                    <Form.Group>
-                        <Form.Control type='text' />
+                    <Form.Group style={{display: "flex", flexDirection: "row"}}>
+                        <Form.Control  type='text' />
+                        <h2 style={{padding: "10px"}}>Ⓝ</h2>
                     </Form.Group>
                 </Col>
-                <Col><h2>Ⓝ</h2></Col>
-            </Row>
+
+            </PlayModalInputContainer>
             <Row>
-                <Col>
-                    <Button onClick={onBtnClick}>Offer</Button>
-                </Col>
+                <PlayModalContainer>
+                    <AcceptButton onClick={onBtnClick}>Offer</AcceptButton>
+                </PlayModalContainer>
             </Row>
         </Form>
     </Modal.Body>
-</SModal>
+</BidModalContainer>
 }
