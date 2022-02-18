@@ -5,6 +5,8 @@ import {gameContractName} from "../constants";
 import {useState} from "react";
 import {nanoid} from "nanoid";
 import {formatNearAmount} from "../utils/near";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faCircle, faCheckCircle} from "@fortawesome/free-solid-svg-icons";
 
 export default function ContractsTest() {
     let contract, wallet;
@@ -14,6 +16,7 @@ export default function ContractsTest() {
     const [isInList, setIsInList] = useState(false);
     const [bid, setBid] = useState(0.02);
     const [availablePlayers, setAvailablePlayers] = useState();
+    const [selectedOpponentID, setSelectedOpponentID] = useState('');
 
     const handleMakeAvailable = () => {
         contract.make_available({config: {},}, GAS_MAKE_AVAILABLE, nearAPI.utils.format.parseNearAmount(bid.toString())).then(r => {
@@ -39,9 +42,14 @@ export default function ContractsTest() {
         }).catch(e => console.error(e) )
     }
     const handleStartGame = () => {
-        contract.start_game({opponent_id: 'kastet99.testnet'}, GAS_MAKE_AVAILABLE, nearAPI.utils.format.parseNearAmount(bid.toString())).then(r => {
-            console.log(r);
-        }).catch(e => console.error(e) )
+        console.log(selectedOpponentID);
+        if (selectedOpponentID) {
+            contract.start_game({opponent_id: selectedOpponentID}, GAS_MAKE_AVAILABLE, ).then(r => {
+                console.log(r);
+            }).catch(e => console.error(e) )
+        } else {
+            alert('Select opponent');
+        }
     }
 
     const handleGetGameConfig = () => {
@@ -93,6 +101,7 @@ export default function ContractsTest() {
                     <Table striped bordered hover variant='warning'>
                         <thead>
                         <tr>
+                            <th><code>select</code></th>
                             <th>username</th>
                             <th>bid</th>
                             <th>opponent</th>
@@ -100,6 +109,11 @@ export default function ContractsTest() {
                         </thead>
                         <tbody>
                         {availablePlayers.map(player => <tr key={nanoid()}>
+                            <td onClick={() => setSelectedOpponentID(player[0])}>
+                                <FontAwesomeIcon
+                                    icon={player[0] === selectedOpponentID ? faCheckCircle : faCircle}
+                                />
+                            </td>
                             <td>{player[0]}</td>
                             <td>{formatNearAmount(player[1].deposit)} Ⓝ</td>
                             <td>{player[1].opponent_id}</td>
