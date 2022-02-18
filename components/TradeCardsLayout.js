@@ -60,18 +60,21 @@ export default function TradeCardsLayout({children}) {
                     <Navbar.Brand href='/'>
                         <FontAwesomeIcon icon={faArrowLeft} width='25'/>
                     </Navbar.Brand>
-                    <Navbar.Toggle class="float-left" aria-controls="basic-navbar-nav" />
-                    <Navbar.Collapse  id="basic-navbar-nav">
-                    <Nav className='me-auto'>
-                        <Nav.Link href='/trade-cards/buy-packs' disabled={router.asPath === '/trade-cards/buy-packs'}>Buy
-                            packs</Nav.Link>
-                        <Nav.Link href='/trade-cards/buy-cards' disabled={router.asPath === '/trade-cards/buy-cards'}>Buy
-                            cards</Nav.Link>
-                        <Nav.Link href='/trade-cards/sell-cards' disabled={router.asPath === '/trade-cards/sell-cards'}>Sell
-                            cards</Nav.Link>
-                        <Nav.Link href='/trade-cards/free-agents'
-                                  disabled={router.asPath === '/trade-cards/free-agents'}>Free agents</Nav.Link>
-                    </Nav>
+                    <Navbar.Toggle class="float-left" aria-controls="basic-navbar-nav"/>
+                    <Navbar.Collapse id="basic-navbar-nav">
+                        <Nav className='me-auto'>
+                            <Nav.Link href='/trade-cards/buy-packs'
+                                      disabled={router.asPath === '/trade-cards/buy-packs'}>Buy
+                                packs</Nav.Link>
+                            <Nav.Link href='/trade-cards/buy-cards'
+                                      disabled={router.asPath === '/trade-cards/buy-cards'}>Buy
+                                cards</Nav.Link>
+                            <Nav.Link href='/trade-cards/sell-cards'
+                                      disabled={router.asPath === '/trade-cards/sell-cards'}>Sell
+                                cards</Nav.Link>
+                            <Nav.Link href='/trade-cards/free-agents'
+                                      disabled={router.asPath === '/trade-cards/free-agents'}>Free agents</Nav.Link>
+                        </Nav>
                     </Navbar.Collapse>
                     <Navbar.Brand href='/'>
                         <img alt='Logo' src='/logo.png' width='40' className='d-inline-block align-top'/>
@@ -79,7 +82,7 @@ export default function TradeCardsLayout({children}) {
                 </Container>
             </Navbar>
             <Container>
-                <Row style={{minWidth: "300px",maxHeight: "40px", alignItems: "center", margin: "50px"}}
+                <Row style={{minWidth: "300px", maxHeight: "40px", alignItems: "center", margin: "50px"}}
                      className='mt-4 mx-3'>
                     <Col style={{maxWidth: "700px"}} className='col-8'>
                         <Form>
@@ -88,7 +91,7 @@ export default function TradeCardsLayout({children}) {
                             </Form.Group>
                         </Form>
                     </Col>
-                    <Col style={{display: "flex", flexDirection: "row",justifyContent: "start", maxWidth: "500px", margin: '0 auto'}}>
+                    <Col style={{display: "flex", flexDirection: "row", justifyContent: "start", maxWidth: "500px",}}>
                         <TradeDropdownsContainer className='col-2'>
                             <Dropdown as={ButtonGroup}>
                                 <TradeButton>Filter</TradeButton>
@@ -111,7 +114,22 @@ export default function TradeCardsLayout({children}) {
                         </TradeDropdownsContainer>
                     </Col>
                 </Row>
-                {children}
+                <Row>
+                    <Col>
+                        {children}
+                    </Col>
+                    <Col>
+                        {children}
+                    </Col>
+                </Row>
+                <Row>
+                    <Col>
+                        {children}
+                    </Col>
+                    <Col>
+                        {children}
+                    </Col>
+                </Row>
             </Container>
 
         </>
