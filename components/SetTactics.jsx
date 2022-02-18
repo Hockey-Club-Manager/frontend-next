@@ -4,18 +4,31 @@ import styled from "styled-components";
 import {AcceptButton, CancelButton} from "./styled-components";
 
 
-const SelectTacticInputsBar = styled.div`
+const SelectTacticInputsBar = styled.ol`
      display: flex;
      justify-content: space-between;
+     max-width: 500px;
+     margin: 0 auto;
+     
+     
 
 `;
+
+const ButtonsContainerTactics = styled(Modal.Footer)`
+        display: flex;
+       justify-content: space-around;
+       margin: 0 auto;
+       width: 50%;
+
+
+`
 
 function SelectTactic() {
     const [rangeValue, setRangeValue] = useState(0)
 
     return (
-        <div className="dropdown" style={{width: "1000px"}}>
-            <ol className="d-grid gap-5">
+        <div className="dropdown">
+            <SelectTacticInputsBar className="d-grid gap-5">
                 <li>
                     <SelectTacticInputsBar>
                         <DropdownButton id="dropdown-basic-button" size="lg" title="-SELECT-">
@@ -23,7 +36,7 @@ function SelectTactic() {
                             <Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
                             <Dropdown.Item href="#/action-3">Something else</Dropdown.Item>
                         </DropdownButton>
-                        <Form.Range style={{width: "500px"}}
+                        <Form.Range
 
                                     value={rangeValue}
                                     onChange={e => setRangeValue(e.target.value)}
@@ -38,7 +51,7 @@ function SelectTactic() {
                             <Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
                             <Dropdown.Item href="#/action-3">Something else</Dropdown.Item>
                         </DropdownButton>
-                        <Form.Range style={{width: "500px"}}
+                        <Form.Range
 
                                     value={rangeValue}
                                     onChange={e => setRangeValue(e.target.value)}
@@ -53,7 +66,7 @@ function SelectTactic() {
                             <Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
                             <Dropdown.Item href="#/action-3">Something else</Dropdown.Item>
                         </DropdownButton>
-                        <Form.Range style={{width: "500px"}}
+                        <Form.Range
 
                                     value={rangeValue}
                                     onChange={e => setRangeValue(e.target.value)}
@@ -61,7 +74,7 @@ function SelectTactic() {
                         />
                     </SelectTacticInputsBar>
                 </li>
-            </ol>
+            </SelectTacticInputsBar>
         </div>
     )
 }
@@ -85,20 +98,18 @@ export default function SetTactics() {
                         <SelectTactic/>
                     </Row>
                 </Modal.Body>
-                <Modal.Footer className="justify-content-center align-items-center">
-                    <Row style={{display: 'flex' }}>
+                <ButtonsContainerTactics>
                         <Col  xs="auto">
                             <CancelButton variant="secondary" onClick={handleClose}>
                                 Cancel
                             </CancelButton>
                         </Col>
-                        <Col style={{paddingLeft: "400px"}} xs="auto">
+                        <Col xs="auto">
                             <AcceptButton  variant="primary" onClick={handleClose}>
                                 Apply
                             </AcceptButton>
                         </Col>
-                    </Row>
-                </Modal.Footer>
+                </ButtonsContainerTactics>
             </Modal>
         </>
 
