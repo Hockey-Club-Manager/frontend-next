@@ -19,7 +19,7 @@ import styled from "styled-components";
 const TradeSearch = styled(Form.Control)`
     max-width: 600px;
     margin-bottom: 100px;
-    min-width: 350px;
+    min-width: 300px;
     height: 47px;
     background: rgba(255, 255, 255, 0.9);
     border: 2px solid #364EA0;
@@ -30,7 +30,7 @@ const TradeSearch = styled(Form.Control)`
 `
 
 const TradeDropdownsContainer = styled(Col)`
-    margin: 0 auto;
+    margin-right: 100px;
     text-align: start;    
 `
 
@@ -79,17 +79,17 @@ export default function TradeCardsLayout({children}) {
                 </Container>
             </Navbar>
             <Container>
-                <Row style={{minWidth: "400px",maxHeight: "40px", alignItems: "center", margin: "50px"}}
+                <Row style={{minWidth: "300px",maxHeight: "40px", alignItems: "center", margin: "50px"}}
                      className='mt-4 mx-3'>
-                    <Col className='col-8'>
+                    <Col style={{maxWidth: "700px"}} className='col-8'>
                         <Form>
                             <Form.Group>
                                 <TradeSearch type='text' placeholder='-Search-'/>
                             </Form.Group>
                         </Form>
                     </Col>
-                    <Col style={{display: "flex", flexDirection: "row",justifyContent: "start", maxWidth: "500px"}}>
-                        <TradeDropdownsContainer  className='col-2'>
+                    <Col style={{display: "flex", flexDirection: "row",justifyContent: "start", maxWidth: "500px", margin: '0 auto'}}>
+                        <TradeDropdownsContainer className='col-2'>
                             <Dropdown as={ButtonGroup}>
                                 <TradeButton>Filter</TradeButton>
                                 <Dropdown.Toggle/>
