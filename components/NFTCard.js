@@ -10,11 +10,18 @@ const SCard = styled(Card)`
  border: none;
   width: 300px;
   height: 450px;
+  
+
+
  
  .card-img-top {
   border-radius: 20px;
+      width: 100%;
+    max-width: 400px;
+    height: auto;
  }
 `
+
 
 const DetailsOverlay = styled(Card.ImgOverlay)`
     background-color: rgba(0, 166, 255, 0.8);
@@ -32,19 +39,19 @@ export default function NFTCard({imgURL, year, position, name, number, role, sta
         >
             <Row className="justify-content-between">
                 <Col className='col-auto'>
-                    <Card.Title className='text-white'>{year}</Card.Title>
+                    <Card.Title className='text-white bg-dark rounded' >{year}</Card.Title>
                 </Col>
                 <Col className='col-auto'>
                     <Card.Title className='text-white'>{position}</Card.Title>
                 </Col>
             </Row>
-            <Row className="justify-content-end">
+            <Row className="justify-content-end ">
                 <Col className="col-auto">
                     <FontAwesomeIcon icon={faSass} size='2x' width='35' className='text-white' />
                 </Col>
             </Row>
-            <div className='mt-auto'>
-                <Row className='justify-content-between'>
+            <div className='mt-auto bg-dark bg-opacity-75 w-100 rounded-2 p-3'>
+                <Row className='justify-content-between '>
                     <Col className='col-auto'>
                         <Card.Title className='text-white'>{name}</Card.Title>
                     </Col>
