@@ -8,11 +8,22 @@ import {Modal} from "react-bootstrap";
 import {useState} from "react";
 import InfoModal from "../../../components/InfoModal";
 import BidModal from "../../../components/BidModal";
+import {AcceptButton} from "../../../components/styled-components";
 
 const CardInfo = styled.div`
-  background-color: aquamarine;
-  border-radius: 20px;
-  padding: 30px;
+    border: 5px solid #E6A71E;
+    box-sizing: border-box;
+    border-radius: 20px;
+    font-family: Venture13;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 33px;
+    line-height: 31px;
+    text-align: left;
+    padding-left: 40px;
+    color: #364EA0;
+
+text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 `
 
 export default function BuyCardView(ctx) {
@@ -56,7 +67,7 @@ export default function BuyCardView(ctx) {
                         </CardInfo>
                 <Row className='justify-content-center mt-4'>
                     <Col className='col-auto'>
-                        <Button variant='secondary' onClick={handleBuyCardOfferModalOpen}>Buy for 6 Ⓝ</Button>
+                        <AcceptButton variant='secondary' onClick={handleBuyCardOfferModalOpen}>Buy for 6 Ⓝ</AcceptButton>
                     </Col>
                 </Row>
             </Col>
