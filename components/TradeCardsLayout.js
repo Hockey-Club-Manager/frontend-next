@@ -1,4 +1,16 @@
-import {Button, ButtonGroup, Col, Container, Dropdown, DropdownButton, Form, Nav, Navbar, Row} from "react-bootstrap";
+import {
+    Button,
+    ButtonGroup,
+    Col,
+    Container,
+    Dropdown,
+    DropdownButton,
+    Form,
+    Nav,
+    Navbar,
+    NavDropdown,
+    Row
+} from "react-bootstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faArrowLeft} from "@fortawesome/free-solid-svg-icons";
 import {useRouter} from "next/router";
@@ -6,6 +18,8 @@ import styled from "styled-components";
 
 const TradeSearch = styled(Form.Control)`
     max-width: 600px;
+    margin-bottom: 100px;
+    min-width: 350px;
     height: 47px;
     background: rgba(255, 255, 255, 0.9);
     border: 2px solid #364EA0;
@@ -16,8 +30,8 @@ const TradeSearch = styled(Form.Control)`
 `
 
 const TradeDropdownsContainer = styled(Col)`
-    min-width: 100px;
-    max-width: 300px;
+    margin: 0 auto;
+    text-align: start;    
 `
 
 const TradeButton = styled(Button)`
@@ -40,11 +54,14 @@ export default function TradeCardsLayout({children}) {
 
     return (
         <>
-            <Navbar bg='dark' variant='dark'>
+
+            <Navbar expand="lg" bg='dark' variant='dark'>
                 <Container>
                     <Navbar.Brand href='/'>
                         <FontAwesomeIcon icon={faArrowLeft} width='25'/>
                     </Navbar.Brand>
+                    <Navbar.Toggle class="float-left" aria-controls="basic-navbar-nav" />
+                    <Navbar.Collapse  id="basic-navbar-nav">
                     <Nav className='me-auto'>
                         <Nav.Link href='/trade-cards/buy-packs' disabled={router.asPath === '/trade-cards/buy-packs'}>Buy
                             packs</Nav.Link>
@@ -55,13 +72,15 @@ export default function TradeCardsLayout({children}) {
                         <Nav.Link href='/trade-cards/free-agents'
                                   disabled={router.asPath === '/trade-cards/free-agents'}>Free agents</Nav.Link>
                     </Nav>
+                    </Navbar.Collapse>
                     <Navbar.Brand href='/'>
                         <img alt='Logo' src='/logo.png' width='40' className='d-inline-block align-top'/>
                     </Navbar.Brand>
                 </Container>
             </Navbar>
             <Container>
-                <Row style={{maxHeight: "40px", alignItems: "center"}} className='mt-4 mx-3'>
+                <Row style={{minWidth: "400px",maxHeight: "40px", alignItems: "center", margin: "50px"}}
+                     className='mt-4 mx-3'>
                     <Col className='col-8'>
                         <Form>
                             <Form.Group>
@@ -69,26 +88,28 @@ export default function TradeCardsLayout({children}) {
                             </Form.Group>
                         </Form>
                     </Col>
-                    <TradeDropdownsContainer className='col-2'>
-                        <Dropdown as={ButtonGroup}>
-                            <TradeButton>Filter</TradeButton>
-                            <Dropdown.Toggle/>
-                            <Dropdown.Menu>
-                                <Dropdown.Item>Action</Dropdown.Item>
-                                <Dropdown.Item>Separated link</Dropdown.Item>
-                            </Dropdown.Menu>
-                        </Dropdown>
-                    </TradeDropdownsContainer>
-                    <TradeDropdownsContainer className='col-2'>
-                        <Dropdown as={ButtonGroup}>
-                            <TradeButton>Sort</TradeButton>
-                            <Dropdown.Toggle/>
-                            <Dropdown.Menu>
-                                <Dropdown.Item>Action</Dropdown.Item>
-                                <Dropdown.Item>Separated link</Dropdown.Item>
-                            </Dropdown.Menu>
-                        </Dropdown>
-                    </TradeDropdownsContainer>
+                    <Col style={{display: "flex", flexDirection: "row",justifyContent: "start", maxWidth: "500px"}}>
+                        <TradeDropdownsContainer  className='col-2'>
+                            <Dropdown as={ButtonGroup}>
+                                <TradeButton>Filter</TradeButton>
+                                <Dropdown.Toggle/>
+                                <Dropdown.Menu>
+                                    <Dropdown.Item>Action</Dropdown.Item>
+                                    <Dropdown.Item>Separated link</Dropdown.Item>
+                                </Dropdown.Menu>
+                            </Dropdown>
+                        </TradeDropdownsContainer>
+                        <TradeDropdownsContainer className='col-2'>
+                            <Dropdown as={ButtonGroup}>
+                                <TradeButton>Sort</TradeButton>
+                                <Dropdown.Toggle/>
+                                <Dropdown.Menu>
+                                    <Dropdown.Item>Action</Dropdown.Item>
+                                    <Dropdown.Item>Separated link</Dropdown.Item>
+                                </Dropdown.Menu>
+                            </Dropdown>
+                        </TradeDropdownsContainer>
+                    </Col>
                 </Row>
                 {children}
             </Container>
