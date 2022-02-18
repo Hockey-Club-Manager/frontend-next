@@ -15,3 +15,8 @@ export async function getObjects() {
 
     return {near, wallet};
 }
+
+const NEAR_NOMINATION = 1_000_000_000_000_000_000_000_000;
+
+// Converts yoctoNEAR to human-readable amount
+export const formatNearAmount = balance => balance / NEAR_NOMINATION;

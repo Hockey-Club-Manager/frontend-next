@@ -4,6 +4,7 @@ import {getObjects} from "../utils/near";
 import {gameContractName} from "../constants";
 import {useState} from "react";
 import {nanoid} from "nanoid";
+import {formatNearAmount} from "../utils/near";
 
 export default function ContractsTest() {
     let contract, wallet;
@@ -43,6 +44,12 @@ export default function ContractsTest() {
         }).catch(e => console.error(e) )
     }
 
+    const handleGetGameConfig = () => {
+        contract.get_game_config({account_id: wallet.account().accountId}).then(r => {
+            console.log(r, `deposit: ${formatNearAmount(r.deposit)}`);
+        }).catch(e => console.error(e));
+    }
+
     getObjects().then(r => {
         const {wallet: _wallet} = r;
         wallet = _wallet;
@@ -51,7 +58,7 @@ export default function ContractsTest() {
             _wallet.account(),
             gameContractName,
             {
-                viewMethods: ['get_available_players', 'get_available_games', 'is_already_in_the_waiting_list'],
+                viewMethods: ['get_available_players', 'get_available_games', 'is_already_in_the_waiting_list', 'get_game_config'],
                 changeMethods: ['make_available', 'start_game', 'generate_event', 'make_unavailable'],
             }
         );
@@ -61,7 +68,8 @@ export default function ContractsTest() {
         }).catch(e => console.error(e) )
     });
     return <Container>
-        {!isInList ?
+        <h1>{isInList ? 'You are in list' : 'You are not in list'}</h1>
+        {/*{!isInList ?*/}
             <Row>
                 <Col>
                     <input type='number' step='0.01' value={bid} onChange={event => setBid(parseFloat(event.target.value))}/>
@@ -70,10 +78,10 @@ export default function ContractsTest() {
                     <Button onClick={handleMakeAvailable}>make available</Button>
                 </Col>
             </Row>
-        :
-            // TODO set bid that is set in contract, not in current input field
+        {/*:*/}
+        {/*    // TODO set bid that is set in contract, not in current input field*/}
             <Button onClick={handleMakeUnavailable}>make unavailable</Button>
-        }
+        {/*}*/}
         <Row>
             <Col>
                 <Button onClick={handleGetAvailablePlayers}>get available players</Button>
@@ -93,7 +101,7 @@ export default function ContractsTest() {
                         <tbody>
                         {availablePlayers.map(player => <tr key={nanoid()}>
                             <td>{player[0]}</td>
-                            <td>{player[1].deposit} Ⓝ</td>
+                            <td>{formatNearAmount(player[1].deposit)} Ⓝ</td>
                             <td>{player[1].opponent_id}</td>
                         </tr>)
                         }
@@ -103,6 +111,7 @@ export default function ContractsTest() {
             </Row>
         }
         <Button onClick={handleIsInList}>is in list</Button>
+        <Button onClick={handleGetGameConfig}>Get game config</Button>
         <hr />
         <Button onClick={handleStartGame}>Start game</Button>
     </Container>
