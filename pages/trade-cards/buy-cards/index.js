@@ -4,7 +4,8 @@ import NFTCard from "../../../components/NFTCard";
 import styled from "styled-components";
 
 const CardCol = styled(Col)`
-  width: 300px;
+  max-width: 300px;
+
 `
 
 function NFTCardCol({imgURL, year, position, name, number, role, stats, detailsLink, cost}) {
