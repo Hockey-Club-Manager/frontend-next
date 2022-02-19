@@ -82,7 +82,8 @@ export default function ContractsTest() {
         contract.get_available_games({from_index: 0, limit: 50}).then(r => {
             const myGameID = r.filter(game => game[1][0] === wallet.account().accountId || game[1][1] === wallet.account().accountId)[0][0];
 
-            contract.generate_event({game_id: myGameID}, GAS_MOVE)
+            contract.generate_event({number_of_rendered_events: 0, game_id: myGameID }, GAS_MOVE)
+                .then(e => console.log('generate event: ', e))
                 .catch(e => console.error('generate event: ', e));
         }).catch(e => console.error(e));
     }
