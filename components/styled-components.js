@@ -14,10 +14,10 @@ export const CircleBtn = styled(Button)`
   }
 `
 export const PlayingCard = styled.div`
-  background-color: wheat;
+  background: #F4F6FF;
+  border-radius: 10px;
   height: 125px;
   width: 80px;
-  border-radius: 10px;
 
   &.goalie {
     margin-top: 140px;
@@ -45,8 +45,6 @@ export const PlayingCard = styled.div`
 
 
 export const AcceptButton = styled.button`
-    width: 280px
-    height: 70px;
   -webkit-border-radius: 60;
   -moz-border-radius: 60;
   border-radius: 60px;
@@ -63,9 +61,8 @@ export const AcceptButton = styled.button`
   border: solid #ffffff 2px;
   text-decoration: none;
   width: 200px;
+  margin: 0 auto;
   
-
-
 &:hover {
   background: #27701d;
   text-decoration: none;
@@ -87,6 +84,7 @@ export const CancelButton = styled.button`
   line-height: 32px;
   letter-spacing: 0em;
   text-align: center;
+  margin: 0 auto;
 
   color: #ffffff;
   font-size: 20px;
