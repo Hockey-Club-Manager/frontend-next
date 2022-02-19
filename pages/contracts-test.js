@@ -2,7 +2,7 @@ import {Button, Container, Row, Col, Table} from "react-bootstrap";
 import * as nearAPI from "near-api-js";
 import {getObjects} from "../utils/near";
 import {gameContractName} from "../constants";
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import {nanoid} from "nanoid";
 import {formatNearAmount} from "../utils/near";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -12,6 +12,7 @@ export default function ContractsTest() {
     let contract, wallet;
 
     const GAS_MAKE_AVAILABLE = 50_000_000_000_000;
+    const GAS_MOVE = 30000000000000;
 
     const [isInList, setIsInList] = useState(false);
     const [bid, setBid] = useState(0.02);
@@ -78,8 +79,18 @@ export default function ContractsTest() {
     }
 
     const handleGenerateEvent = () => {
-        contract.generate_event({game_id: '1', number_of_rendered_events: 1}).then(r => console.log(r))
-            .catch(e => console.error(e));
+        contract.get_available_games({from_index: 0, limit: 50}).then(r => {
+            const myGameID = r.filter(game => game[1][0] === wallet.account().accountId || game[1][1] === wallet.account().accountId)[0][0];
+
+            contract.generate_event({game_id: myGameID}, GAS_MOVE)
+                .catch(e => console.error('generate event: ', e));
+        }).catch(e => console.error(e));
+    }
+
+    const handleGetEvents = () => {
+        // TODO change number_of_rendered_events
+        contract.get_events({game_id: 0, number_of_rendered_events: 0, account_id: wallet.account().accountId})
+            .then(r => console.log('get_events: ', r)).catch(e => console.error(e));
     }
 
     getObjects().then(r => {
@@ -90,12 +101,10 @@ export default function ContractsTest() {
             _wallet.account(),
             gameContractName,
             {
-                viewMethods: ['get_available_players', 'get_available_games', 'is_already_in_the_waiting_list', 'get_game_config'],
+                viewMethods: ['get_available_players', 'get_available_games', 'is_already_in_the_waiting_list', 'get_game_config', 'get_events'],
                 changeMethods: ['make_available', 'start_game', 'generate_event', 'make_unavailable', 'internal_stop_game'],
             }
         );
-
-        updateInTheWaitingList();
     });
 
     return <Container>
@@ -180,5 +189,6 @@ export default function ContractsTest() {
         <hr />
         <Button onClick={handleStartGame} variant='success'>Start game</Button>
         <Button onClick={handleGenerateEvent}>Generate event</Button>
+        <Button onClick={handleGetEvents}>Get events</Button>
     </Container>
 }
