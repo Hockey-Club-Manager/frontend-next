@@ -132,7 +132,10 @@ export default function ContractsTest() {
                         </thead>
                         <tbody>
                         {availablePlayers.map(player => <tr key={nanoid()}>
-                            <td onClick={() => setSelectedOpponentID(player[0])}>
+                            <td onClick={() => {
+                                setBid(formatNearAmount(player[1].deposit));
+                                setSelectedOpponentID(player[0]);
+                            }}>
                                 <FontAwesomeIcon
                                     icon={player[0] === selectedOpponentID ? faCheckCircle : faCircle}
                                 />
@@ -158,7 +161,7 @@ export default function ContractsTest() {
                 <Button onClick={getAvailableGames}>Update</Button>
             </Col>
         </Row>
-        <Table srtiped bordered hover variant='warning'>
+        <Table striped bordered hover variant='warning'>
             <thead>
             <tr>
                 <th><code>stop</code></th>
@@ -175,7 +178,7 @@ export default function ContractsTest() {
             </thead>
         </Table>
         <hr />
-        <Button onClick={handleStartGame}>Start game</Button>
+        <Button onClick={handleStartGame} variant='success'>Start game</Button>
         <Button onClick={handleGenerateEvent}>Generate event</Button>
     </Container>
 }
