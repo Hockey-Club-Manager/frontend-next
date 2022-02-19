@@ -2,7 +2,7 @@ import {Button, Container, Row, Col, Table} from "react-bootstrap";
 import * as nearAPI from "near-api-js";
 import {getObjects} from "../utils/near";
 import {gameContractName} from "../constants";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {nanoid} from "nanoid";
 import {formatNearAmount} from "../utils/near";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -16,6 +16,7 @@ export default function ContractsTest() {
     const [isInList, setIsInList] = useState(false);
     const [bid, setBid] = useState(0.02);
     const [availablePlayers, setAvailablePlayers] = useState();
+    const [availableGames, setAvailableGames] = useState();
     const [selectedOpponentID, setSelectedOpponentID] = useState('');
 
     const handleMakeAvailable = () => {
@@ -36,15 +37,19 @@ export default function ContractsTest() {
             console.log(r);
         })
     }
-    const handleIsInList = () => {
+
+    function updateInTheWaitingList() {
         contract.is_already_in_the_waiting_list({account_id: wallet.account().accountId}).then(r => {
-            console.log(r);
+            setIsInList(r);
+            console.log('is already in the waiting list: ' + r);
         }).catch(e => console.error(e) )
     }
+
     const handleStartGame = () => {
         console.log(selectedOpponentID);
         if (selectedOpponentID) {
             contract.start_game({opponent_id: selectedOpponentID}, GAS_MAKE_AVAILABLE, nearAPI.utils.format.parseNearAmount(bid.toString())).then(r => {
+                // unused code due to redirect
                 console.log(r);
             }).catch(e => console.error(e) )
         } else {
@@ -52,10 +57,29 @@ export default function ContractsTest() {
         }
     }
 
+    const getAvailableGames = () => {
+        contract.get_available_games({from_index: 0, limit: 50}).then(r => {
+            setAvailableGames(r);
+            console.log(r);
+        }).catch(e => console.error(e));
+    }
+
+    const stopGame = gameID => {
+        console.log(gameID)
+        contract.internal_stop_game({game_id: gameID}).then(r => {
+            console.log(r);
+        }).catch(e => console.error(e));
+    }
+
     const handleGetGameConfig = () => {
         contract.get_game_config({account_id: wallet.account().accountId}).then(r => {
             console.log(r, `deposit: ${formatNearAmount(r.deposit)}`);
         }).catch(e => console.error(e));
+    }
+
+    const handleGenerateEvent = () => {
+        contract.generate_event({game_id: '1', number_of_rendered_events: 1}).then(r => console.log(r))
+            .catch(e => console.error(e));
     }
 
     getObjects().then(r => {
@@ -67,14 +91,13 @@ export default function ContractsTest() {
             gameContractName,
             {
                 viewMethods: ['get_available_players', 'get_available_games', 'is_already_in_the_waiting_list', 'get_game_config'],
-                changeMethods: ['make_available', 'start_game', 'generate_event', 'make_unavailable'],
+                changeMethods: ['make_available', 'start_game', 'generate_event', 'make_unavailable', 'internal_stop_game'],
             }
         );
 
-        contract.is_already_in_the_waiting_list({account_id: wallet.account().accountId}).then(r => {
-            setIsInList(r);
-        }).catch(e => console.error(e) )
+        updateInTheWaitingList();
     });
+
     return <Container>
         <h1>{isInList ? 'You are in list' : 'You are not in list'}</h1>
         {/*{!isInList ?*/}
@@ -124,9 +147,35 @@ export default function ContractsTest() {
                 </Col>
             </Row>
         }
-        <Button onClick={handleIsInList}>is in list</Button>
+        <Button onClick={updateInTheWaitingList}>is in list</Button>
         <Button onClick={handleGetGameConfig}>Get game config</Button>
+        <hr/>
+        <Row className='justify-content-start'>
+            <Col className='col-auto'>
+                <h2>Available games</h2>
+            </Col>
+            <Col className='col-auto'>
+                <Button onClick={getAvailableGames}>Update</Button>
+            </Col>
+        </Row>
+        <Table srtiped bordered hover variant='warning'>
+            <thead>
+            <tr>
+                <th><code>stop</code></th>
+                <th>Game id</th>
+                <th>Player 1</th>
+                <th>Player 2</th>
+            </tr>
+            {availableGames?.map(game => <tr key={`game-${game[0]}`}>
+                <td onClick={()=>stopGame(game[0])}>stop</td>
+                <td>{game[0]}</td>
+                <td>{game[1][0]}</td>
+                <td>{game[1][1]}</td>
+            </tr>)}
+            </thead>
+        </Table>
         <hr />
         <Button onClick={handleStartGame}>Start game</Button>
+        <Button onClick={handleGenerateEvent}>Generate event</Button>
     </Container>
 }
