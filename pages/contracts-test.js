@@ -1,4 +1,4 @@
-import {Button, Container, Row, Col, Form, Table} from "react-bootstrap";
+import {Button, Container, Row, Col, Table} from "react-bootstrap";
 import * as nearAPI from "near-api-js";
 import {getObjects} from "../utils/near";
 import {gameContractName} from "../constants";
@@ -11,7 +11,7 @@ import {faCircle, faCheckCircle} from "@fortawesome/free-solid-svg-icons";
 export default function ContractsTest() {
     let contract, wallet;
 
-    const GAS_MAKE_AVAILABLE = 50000000000000;
+    const GAS_MAKE_AVAILABLE = 50_000_000_000_000;
 
     const [isInList, setIsInList] = useState(false);
     const [bid, setBid] = useState(0.02);
@@ -44,7 +44,7 @@ export default function ContractsTest() {
     const handleStartGame = () => {
         console.log(selectedOpponentID);
         if (selectedOpponentID) {
-            contract.start_game({opponent_id: selectedOpponentID}, GAS_MAKE_AVAILABLE, ).then(r => {
+            contract.start_game({opponent_id: selectedOpponentID}, GAS_MAKE_AVAILABLE, nearAPI.utils.format.parseNearAmount(bid.toString())).then(r => {
                 console.log(r);
             }).catch(e => console.error(e) )
         } else {
