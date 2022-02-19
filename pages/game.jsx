@@ -46,7 +46,7 @@ export default function Game() {
                 <Field onClick={()=>router.replace('/result')} />
                 <Row className='mt-4 justify-content-between'>
                     <Col className='col-auto'>
-                        <Button>Take OT</Button>
+                        <Button>Take TO</Button>
                     </Col>
                     <Col className='col-auto'>
                         <Button>Empty net</Button>
