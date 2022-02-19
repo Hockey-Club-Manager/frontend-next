@@ -7,7 +7,6 @@ import {SModal} from "../../../components/settings";
 import {Modal} from "react-bootstrap";
 import {useState} from "react";
 import InfoModal from "../../../components/InfoModal";
-import BidModal from "../../../components/BidModal";
 
 const CardInfo = styled.div`
   background-color: aquamarine;
@@ -15,7 +14,33 @@ const CardInfo = styled.div`
   padding: 30px;
 `
 
-export default function BuyCardView(ctx) {
+function BidModal({show, onHide, inputValue, onInputChange, onBtnClick}) {
+    return <SModal show={show} onHide={onHide} centered>
+        <Modal.Header closeButton />
+        <Modal.Body>
+            <Col>
+                <h3>Set your bid for buying a <code>Name</code></h3>
+                <h3><code>Surname from CardHolder</code></h3>
+            </Col>
+            <Row className='mt-3 justify-content-center'>
+                <Col className='col-auto'>
+                    <Form.Group>
+                        <div className="input-group input-group-lg" id="big-modal-input">
+                            <input type="number" step='0.01' className='form-control' aria-labelledby="big-modal-input"
+                                   value={inputValue} onChange={onInputChange} />
+                            <span className="input-group-text">Ⓝ</span>
+                        </div>
+                    </Form.Group>
+                </Col>
+                <Col className='col-auto'>
+                    <Button variant='success' onClick={onBtnClick}>Offer</Button>
+                </Col>
+            </Row>
+        </Modal.Body>
+    </SModal>
+}
+
+export default function BuyCardView() {
     const [showBuyCardOfferModal, setShowBuyCardOfferModal] = useState(false);
     const handleBuyCardOfferModalOpen = () => setShowBuyCardOfferModal(true);
     const handleBuyCardOfferModalClose = () => setShowBuyCardOfferModal(false);
@@ -69,8 +94,6 @@ export default function BuyCardView(ctx) {
                 handleBuyCardConfirmModalOpen();
             }}
             content={[
-                <h3 key='buy-card-offer-0'>Set your bid for buying a <code>Name</code></h3>,
-                <h3 key='buy-card-offer-0'><code>Surname from CardHolder</code></h3>,
             ]}
         />
         <InfoModal

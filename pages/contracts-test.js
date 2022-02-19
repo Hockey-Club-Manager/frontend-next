@@ -1,7 +1,6 @@
 import {Button, Container, Row, Col, Table} from "react-bootstrap";
 import * as nearAPI from "near-api-js";
-import {getObjects} from "../utils/near";
-import {gameContractName} from "../constants";
+import {getObjects, getGameContract} from "../utils/near";
 import {useState} from "react";
 import {nanoid} from "nanoid";
 import {formatNearAmount} from "../utils/near";
@@ -12,7 +11,7 @@ export default function ContractsTest() {
     let contract, wallet;
 
     const GAS_MAKE_AVAILABLE = 50_000_000_000_000;
-    const GAS_MOVE = 30000000000000;
+    const GAS_MOVE = 30_000_000_000_000;
 
     const [isInList, setIsInList] = useState(false);
     const [bid, setBid] = useState(0.02);
@@ -88,33 +87,14 @@ export default function ContractsTest() {
         }).catch(e => console.error(e));
     }
 
-    const handleGetEvents = () => {
-        // TODO change number_of_rendered_events
-        contract.get_available_games({from_index: 0, limit: 50}).then(r => {
-            const myGameID = r.filter(game => game[1][0] === wallet.account().accountId || game[1][1] === wallet.account().accountId)[0][0];
-
-            contract.get_events({game_id: myGameID, number_of_rendered_events: 0, account_id: wallet.account().accountId})
-                .then(r => console.log('get_events: ', r)).catch(e => console.error(e));
-        }).catch(e => console.error(e));
-    }
-
     getObjects().then(r => {
         const {wallet: _wallet} = r;
         wallet = _wallet;
-
-        contract = new nearAPI.Contract(
-            _wallet.account(),
-            gameContractName,
-            {
-                viewMethods: ['get_available_players', 'get_available_games', 'is_already_in_the_waiting_list', 'get_game_config', 'get_events'],
-                changeMethods: ['make_available', 'start_game', 'generate_event', 'make_unavailable', 'internal_stop_game'],
-            }
-        );
+        contract = getGameContract(_wallet);
     });
 
     return <Container>
         <h1>{isInList ? 'You are in list' : 'You are not in list'}</h1>
-        {/*{!isInList ?*/}
             <Row>
                 <Col>
                     <input type='number' step='0.01' value={bid} onChange={event => setBid(parseFloat(event.target.value))}/>
@@ -123,46 +103,35 @@ export default function ContractsTest() {
                     <Button onClick={handleMakeAvailable}>make available</Button>
                 </Col>
             </Row>
-        {/*:*/}
-        {/*    // TODO set bid that is set in contract, not in current input field*/}
             <Button onClick={handleMakeUnavailable}>make unavailable</Button>
-        {/*}*/}
         <Row>
             <Col>
                 <Button onClick={handleGetAvailablePlayers}>get available players</Button>
             </Col>
         </Row>
         { availablePlayers &&
-            <Row>
-                <Col>
-                    <Table striped bordered hover variant='warning'>
-                        <thead>
-                        <tr>
-                            <th><code>select</code></th>
-                            <th>username</th>
-                            <th>bid</th>
-                            <th>opponent</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {availablePlayers.map(player => <tr key={nanoid()}>
-                            <td onClick={() => {
-                                setBid(formatNearAmount(player[1].deposit));
-                                setSelectedOpponentID(player[0]);
-                            }}>
-                                <FontAwesomeIcon
-                                    icon={player[0] === selectedOpponentID ? faCheckCircle : faCircle}
-                                />
-                            </td>
-                            <td>{player[0]}</td>
-                            <td>{formatNearAmount(player[1].deposit)} Ⓝ</td>
-                            <td>{player[1].opponent_id}</td>
-                        </tr>)
-                        }
-                        </tbody>
-                    </Table>
-                </Col>
-            </Row>
+            <Table striped bordered hover variant='warning'>
+                <thead>
+                <tr>
+                    <th><code>select</code></th>
+                    <th>username</th>
+                    <th>bid</th>
+                </tr>
+                </thead>
+                <tbody>
+                {availablePlayers.map(player => <tr key={nanoid()}>
+                    <td onClick={() => {
+                        setBid(formatNearAmount(player[1].deposit));
+                        setSelectedOpponentID(player[0]);
+                    }}>
+                        <FontAwesomeIcon icon={player[0] === selectedOpponentID ? faCheckCircle : faCircle} />
+                    </td>
+                    <td>{player[0]}</td>
+                    <td>{formatNearAmount(player[1].deposit)} Ⓝ</td>
+                </tr>)
+                }
+                </tbody>
+            </Table>
         }
         <Button onClick={updateInTheWaitingList}>is in list</Button>
         <Button onClick={handleGetGameConfig}>Get game config</Button>
@@ -194,6 +163,5 @@ export default function ContractsTest() {
         <hr />
         <Button onClick={handleStartGame} variant='success'>Start game</Button>
         <Button onClick={handleGenerateEvent}>Generate event</Button>
-        <Button onClick={handleGetEvents}>Get events</Button>
     </Container>
 }
