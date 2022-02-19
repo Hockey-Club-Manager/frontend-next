@@ -8,12 +8,11 @@ import SetTactics from "../components/SetTactics";
 import * as nearAPI from "near-api-js";
 import {getObjects} from "../utils/near";
 
-
-
 export default function Home() {
   const [showSettings, setShowSettings] = useState(false);
   const [isShowBid, setIsShowBid] = useState(false);
   const [isSigned, setIsSigned] = useState(false);
+  const [bid, setBid] = useState(0.02);
 
   const showBid = () => setIsShowBid(true);
   const hideBid = () => setIsShowBid(false);
@@ -63,10 +62,12 @@ export default function Home() {
          <BidModal
            show={isShowBid}
            onHide={hideBid}
-           onBtnClick={()=>router.push('/loader')}
            content={[
                <h3 key='main-bid'>Set your bid for a game</h3>,
            ]}
+           inputValue={bid}
+           onInputChange={(event)=>setBid(event.target.value)}
+           onBtnClick={()=>router.push('/loader')}
          />
           <SetTactics/>
 
