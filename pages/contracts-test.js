@@ -89,8 +89,12 @@ export default function ContractsTest() {
 
     const handleGetEvents = () => {
         // TODO change number_of_rendered_events
-        contract.get_events({game_id: 0, number_of_rendered_events: 0, account_id: wallet.account().accountId})
-            .then(r => console.log('get_events: ', r)).catch(e => console.error(e));
+        contract.get_available_games({from_index: 0, limit: 50}).then(r => {
+            const myGameID = r.filter(game => game[1][0] === wallet.account().accountId || game[1][1] === wallet.account().accountId)[0][0];
+
+            contract.get_events({game_id: myGameID, number_of_rendered_events: 0, account_id: wallet.account().accountId})
+                .then(r => console.log('get_events: ', r)).catch(e => console.error(e));
+        }).catch(e => console.error(e));
     }
 
     getObjects().then(r => {
