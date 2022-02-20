@@ -18,6 +18,9 @@ export default function ContractsTest() {
     const [availablePlayers, setAvailablePlayers] = useState();
     const [availableGames, setAvailableGames] = useState();
     const [selectedOpponentID, setSelectedOpponentID] = useState('');
+    const [myGameID, setMyGameID] = useState(null);
+    const [autoGenerate, setAutoGenerate] = useState(false);
+    const [timeoutID, setTimeoutID] = useState(null);
 
     const handleMakeAvailable = () => {
         contract.make_available({config: {},}, GAS_MAKE_AVAILABLE, nearAPI.utils.format.parseNearAmount(bid.toString())).then(r => {
@@ -48,6 +51,7 @@ export default function ContractsTest() {
     const handleStartGame = () => {
         console.log(selectedOpponentID);
         if (selectedOpponentID) {
+            setMyGameID(null);
             contract.start_game({opponent_id: selectedOpponentID}, GAS_MAKE_AVAILABLE, nearAPI.utils.format.parseNearAmount(bid.toString())).then(r => {
                 // unused code due to redirect
                 console.log(r);
@@ -78,13 +82,20 @@ export default function ContractsTest() {
     }
 
     const handleGenerateEvent = () => {
-        contract.get_available_games({from_index: 0, limit: 50}).then(r => {
-            const myGameID = r.filter(game => game[1][0] === wallet.account().accountId || game[1][1] === wallet.account().accountId)[0][0];
-
+        if (typeof myGameID === "number") {
             contract.generate_event({number_of_rendered_events: 0, game_id: myGameID }, GAS_MOVE)
                 .then(e => console.log('generate event: ', e))
                 .catch(e => console.error('generate event: ', e));
-        }).catch(e => console.error(e));
+        } else {
+            contract.get_available_games({from_index: 0, limit: 50}).then(r => {
+                const _myGameID = r.filter(game => game[1][0] === wallet.account().accountId || game[1][1] === wallet.account().accountId)[0][0];
+                setMyGameID(_myGameID);
+
+                contract.generate_event({number_of_rendered_events: 0, game_id: _myGameID }, GAS_MOVE)
+                    .then(e => console.log('generate event: ', e))
+                    .catch(e => console.error('generate event: ', e));
+            }).catch(e => console.error(e));
+        }
     }
 
     getObjects().then(r => {
@@ -92,6 +103,17 @@ export default function ContractsTest() {
         wallet = _wallet;
         contract = getGameContract(_wallet);
     });
+
+    const handleAutoGenerate = () => {
+        if (!autoGenerate) {
+            setTimeoutID(setInterval(()=>{
+                handleGenerateEvent();
+            }, 1000))
+        } else {
+            clearTimeout(timeoutID);
+        }
+        setAutoGenerate(a => !a);
+    }
 
     return <Container>
         <h1>{isInList ? 'You are in list' : 'You are not in list'}</h1>
@@ -163,5 +185,6 @@ export default function ContractsTest() {
         <hr />
         <Button onClick={handleStartGame} variant='success'>Start game</Button>
         <Button onClick={handleGenerateEvent}>Generate event</Button>
+        <Button onClick={handleAutoGenerate}>Turn {!autoGenerate ? 'on' : 'off'} auto generate event</Button>
     </Container>
 }
