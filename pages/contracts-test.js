@@ -11,7 +11,7 @@ export default function ContractsTest() {
     let contract, wallet;
 
     const GAS_MAKE_AVAILABLE = 50_000_000_000_000;
-    const GAS_MOVE = 30_000_000_000_000;
+    const GAS_MOVE = 50_000_000_000_000;
 
     const [isInList, setIsInList] = useState(false);
     const [bid, setBid] = useState(0.02);
@@ -20,14 +20,14 @@ export default function ContractsTest() {
     const [selectedOpponentID, setSelectedOpponentID] = useState('');
     const [myGameID, setMyGameID] = useState(null);
     const [autoGenerate, setAutoGenerate] = useState(false);
-    const [timeoutID, setTimeoutID] = useState(null);
+    const [eventsIntervalID, setEventsIntervalID] = useState(null);
+    const [eventsQueue, setEventsQueue] = useState([]);
+    // const [receivedEvents, setReceivedEvents] = useState(0);
 
     const handleMakeAvailable = () => {
-        contract.make_available({config: {},}, GAS_MAKE_AVAILABLE, nearAPI.utils.format.parseNearAmount(bid.toString())).then(r => {
-            console.log(r);
-        }).catch(e => {
-            console.error(e);
-        });
+        contract.make_available({config: {},}, GAS_MAKE_AVAILABLE, nearAPI.utils.format.parseNearAmount(bid.toString()))
+            .then(r => console.log(r))
+            .catch(e => console.error(e));
     }
     const handleGetAvailablePlayers = () => {
         contract.get_available_players({from_index: 0, limit: 50}).then(r => {
@@ -84,16 +84,25 @@ export default function ContractsTest() {
     const handleGenerateEvent = () => {
         if (typeof myGameID === "number") {
             contract.generate_event({number_of_rendered_events: 0, game_id: myGameID }, GAS_MOVE)
-                .then(e => console.log('generate event: ', e))
+                .then(e =>  {
+                    setEventsQueue(e);
+                    // setReceivedEvents(r => r + e.length);
+                    console.log('generate event: ', e)
+                })
                 .catch(e => console.error('generate event: ', e));
         } else {
             contract.get_available_games({from_index: 0, limit: 50}).then(r => {
                 const _myGameID = r.filter(game => game[1][0] === wallet.account().accountId || game[1][1] === wallet.account().accountId)[0][0];
                 setMyGameID(_myGameID);
 
+                // contract.generate_event({number_of_rendered_events: receivedEvents, game_id: _myGameID }, GAS_MOVE)
                 contract.generate_event({number_of_rendered_events: 0, game_id: _myGameID }, GAS_MOVE)
-                    .then(e => console.log('generate event: ', e))
-                    .catch(e => console.error('generate event: ', e));
+                    .then(e => {
+                        // setEventsQueue(q => [...q, e]);
+                        setEventsQueue(e);
+                        // setReceivedEvents(r => r + e.length);
+                        console.log('generate event: ', e)
+                    })
             }).catch(e => console.error(e));
         }
     }
@@ -106,13 +115,32 @@ export default function ContractsTest() {
 
     const handleAutoGenerate = () => {
         if (!autoGenerate) {
-            setTimeoutID(setInterval(()=>{
+            setEventsIntervalID(setInterval(()=>{
                 handleGenerateEvent();
             }, 1000))
         } else {
-            clearTimeout(timeoutID);
+            clearInterval(eventsIntervalID);
         }
         setAutoGenerate(a => !a);
+    }
+
+    const [autoReload, setAutoReload] = useState(false);
+    const [tableIntervalID, setTableIntervalID] = useState(null);
+    const [event, setEvent] = useState(null);
+
+    function handleAutoReload() {
+        if (!autoReload) {
+            setTableIntervalID(setInterval(()=>{
+                setEventsQueue(q => {
+                    console.log(q);
+                    setEvent(q[0] || null);
+                    return q.slice(1);
+                });
+            }, 1000));
+        } else {
+            clearInterval(tableIntervalID);
+        }
+        setAutoReload(a => !a);
     }
 
     return <Container>
@@ -186,5 +214,170 @@ export default function ContractsTest() {
         <Button onClick={handleStartGame} variant='success'>Start game</Button>
         <Button onClick={handleGenerateEvent}>Generate event</Button>
         <Button onClick={handleAutoGenerate}>Turn {!autoGenerate ? 'on' : 'off'} auto generate event</Button>
+        <Row>
+            <Col>
+                <Button onClick={handleAutoReload}>Turn {!autoReload ? 'on' : 'off'} auto reload table</Button>
+            </Col>
+        </Row>
+        <Table striped bordered variant='secondary' className='my-4'>
+            <thead>
+            <tr>
+                <th>Action</th>
+                <th colSpan='7'>zone number</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                {/*<td>Battle</td>*/}
+                <td>{event?.action}</td>
+                <td colSpan='7'>{event?.zone_number}</td>
+            </tr>
+            </tbody>
+            <thead className='table-primary'>
+            <tr>
+                <th colSpan='8'>MY TEAM</th>
+            </tr>
+            </thead>
+            <thead className='table-primary'>
+            <tr>
+                <th colSpan='8'>Field players</th>
+            </tr>
+            </thead>
+            <thead className='table-primary'>
+            <tr>
+                <th>№</th>
+                <th>position</th>
+                <th>role</th>
+                <th>Skating</th>
+                <th>Shooting</th>
+                <th>Strength</th>
+                <th>iq</th>
+                <th>morale</th>
+            </tr>
+            </thead>
+            <tbody className='table-primary'>
+            {event?.my_team?.field_players && Object.keys(event?.my_team?.field_players).map((k) => <tr key={nanoid()}>
+                <td>{k}</td>
+                <td>{event?.my_team?.field_players[k].position}</td>
+                <td>{event?.my_team?.field_players[k].role}</td>
+                <td>{event?.my_team?.field_players[k].stats.skating}</td>
+                <td>{event?.my_team?.field_players[k].stats.shooting}</td>
+                <td>{event?.my_team?.field_players[k].stats.strength}</td>
+                <td>{event?.my_team?.field_players[k].stats.iq}</td>
+                <td>{event?.my_team?.field_players[k].stats.morale}</td>
+            </tr>)}
+            </tbody>
+            <thead className='table-primary'>
+            <tr>
+                <th colSpan='8'>Goalie</th>
+            </tr>
+            </thead>
+            <thead className='table-primary'>
+            <tr>
+                <th>role</th>
+                <th>glove and blocker</th>
+                <th>pads</th>
+                <th>stand</th>
+                <th>stretch</th>
+                <th colSpan='3'>morale</th>
+            </tr>
+            </thead>
+            <tbody className='table-primary'>
+            <tr>
+                <td>{event?.my_team?.goalie?.role}</td>
+                <td>{event?.my_team?.goalie?.stats.glove_and_blocker}</td>
+                <td>{event?.my_team?.goalie?.stats.pads}</td>
+                <td>{event?.my_team?.goalie?.stats.stand}</td>
+                <td>{event?.my_team?.goalie?.stats.stretch}</td>
+                <td colSpan='3'>{event?.my_team?.goalie?.stats.morale}</td>
+            </tr>
+            </tbody>
+            <thead className='table-warning'>
+            <tr>
+                <th colSpan='8'>Player with puck in team {event?.player_with_puck.user_id}</th>
+            </tr>
+            </thead>
+            <thead className='table-warning'>
+            <tr>
+                <th>Position</th>
+                <th>role</th>
+                <th>skating</th>
+                <th>shooting</th>
+                <th>strength</th>
+                <th>iq</th>
+                <th colSpan='2'>morale</th>
+            </tr>
+            </thead>
+            <tbody className='table-warning'>
+            <tr>
+                <td>{event?.player_with_puck.position}</td>
+                <td>{event?.player_with_puck.role}</td>
+                <td>{event?.player_with_puck.stats.skating}</td>
+                <td>{event?.player_with_puck.stats.shooting}</td>
+                <td>{event?.player_with_puck.stats.strength}</td>
+                <td>{event?.player_with_puck.stats.iq}</td>
+                <td colSpan='2'>{event?.player_with_puck.stats.morale}</td>
+            </tr>
+            </tbody>
+            <thead className='table-danger'>
+            <tr>
+                <th colSpan='8'>OPPONENT TEAM</th>
+            </tr>
+            </thead>
+            <thead className='table-danger'>
+            <tr>
+                <th colSpan='8'>Field players</th>
+            </tr>
+            </thead>
+            <thead className='table-danger'>
+            <tr>
+                <th>№</th>
+                <th>position</th>
+                <th>role</th>
+                <th>Skating</th>
+                <th>Shooting</th>
+                <th>Strength</th>
+                <th>iq</th>
+                <th>morale</th>
+            </tr>
+            </thead>
+            <tbody className='table-danger'>
+            {event?.opponent_team?.field_players && Object.keys(event?.opponent_team?.field_players).map((k) => <tr key={nanoid()}>
+                <td>{k}</td>
+                <td>{event?.opponent_team?.field_players[k].position}</td>
+                <td>{event?.opponent_team?.field_players[k].role}</td>
+                <td>{event?.opponent_team?.field_players[k].stats.skating}</td>
+                <td>{event?.opponent_team?.field_players[k].stats.shooting}</td>
+                <td>{event?.opponent_team?.field_players[k].stats.strength}</td>
+                <td>{event?.opponent_team?.field_players[k].stats.iq}</td>
+                <td>{event?.opponent_team?.field_players[k].stats.morale}</td>
+            </tr>)}
+            </tbody>
+            <thead className='table-danger'>
+            <tr>
+                <th colSpan='8'>Goalie</th>
+            </tr>
+            </thead>
+            <thead className='table-danger'>
+            <tr>
+                <th>role</th>
+                <th>glove and blocker</th>
+                <th>pads</th>
+                <th>stand</th>
+                <th>stretch</th>
+                <th colSpan='3'>morale</th>
+            </tr>
+            </thead>
+            <tbody className='table-danger'>
+            <tr>
+                <td>{event?.opponent_team?.goalie?.role}</td>
+                <td>{event?.opponent_team?.goalie?.stats.glove_and_blocker}</td>
+                <td>{event?.opponent_team?.goalie?.stats.pads}</td>
+                <td>{event?.opponent_team?.goalie?.stats.stand}</td>
+                <td>{event?.opponent_team?.goalie?.stats.stretch}</td>
+                <td colSpan='3'>{event?.opponent_team?.goalie?.stats.morale}</td>
+            </tr>
+            </tbody>
+        </Table>
     </Container>
 }
