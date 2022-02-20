@@ -6,12 +6,18 @@ const BgRow = styled(Row)`
   height: 100vh;
 `
 
+const DraggableImg = styled.div`
+  content: url("/nft.jpg");
+`;
+
 export default function ImageMenu() {
     return <Container fluid>
         <BgRow className='justify-content-center'>
             <Col className='col-auto align-self-center'>
-                <Draggable>
-                    <video src='/menu-bg.mp4' autoPlay="autoplay" loop="loop" />
+                <Draggable
+                    bounds={'body'}
+                >
+                    <DraggableImg />
                 </Draggable>
             </Col>
         </BgRow>
