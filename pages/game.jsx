@@ -13,10 +13,12 @@ const Field = styled.div`
 const GameButtons = styled(Button)`
         background: #5575E1;
         border-radius: 13px;
-        font-family: Venture13;
+        font-family: 'Orbitron', sans-serif;
+        font-style: normal;
+        font-weight: normal;
         font-style: normal;
          font-weight: normal;
-        font-size: 24px;
+        font-size: 20px;
         line-height: 23px;
         text-align: center;
         color: #FFFFFF;
@@ -38,6 +40,7 @@ const LogoSquare = styled.div`
 
 
 const SelectDropdownBtn = styled(Button)`
+     font-family: 'Orbitron', sans-serif;
      width: 300px;
      background: rgba(255, 255, 255, 0.9);
      border: 2px solid #364EA0;
