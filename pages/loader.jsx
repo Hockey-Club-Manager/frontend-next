@@ -1,8 +1,19 @@
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faHockeyPuck} from "@fortawesome/free-solid-svg-icons";
-import {Row, Col, Container} from "react-bootstrap";
+import {Row, Col, Container, Spinner} from "react-bootstrap";
 import {useEffect} from "react";
 import {useRouter} from "next/router";
+import background from "../public/background.png"
+import styled from "styled-components";
+
+
+const StyledSpinner = styled(Spinner)`
+    position: absolute;
+    top:50%;
+    left:50%;   
+`
+
+const Background = styled.div`
+    
+`
 
 export default function Loader() {
     const router = useRouter();
@@ -15,8 +26,9 @@ export default function Loader() {
 
     return <Container>
         <Row>
-            <Col xs={1}>
-                <FontAwesomeIcon icon={faHockeyPuck} spin className='fa-spin d-block' />
+            <Col className="" xs={1}>
+                <Background><img src={background}/></Background>
+                <StyledSpinner   animation="border" variant="primary" />
             </Col>
         </Row>
     </Container>
