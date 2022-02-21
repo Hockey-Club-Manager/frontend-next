@@ -1,7 +1,7 @@
 import {Button, Container, Row, Col, Table} from "react-bootstrap";
 import * as nearAPI from "near-api-js";
 import {getObjects, getGameContract} from "../utils/near";
-import {useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {nanoid} from "nanoid";
 import {formatNearAmount} from "../utils/near";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -22,7 +22,11 @@ export default function ContractsTest() {
     const [autoGenerate, setAutoGenerate] = useState(false);
     const [eventsIntervalID, setEventsIntervalID] = useState(null);
     const [eventsQueue, setEventsQueue] = useState([]);
-    // const [receivedEvents, setReceivedEvents] = useState(0);
+    const [receivedEvents, setReceivedEvents] = useState(0);
+    const [autoReload, setAutoReload] = useState(false);
+    const [tableIntervalID, setTableIntervalID] = useState(null);
+    const [event, setEvent] = useState(null);
+
 
     const handleMakeAvailable = () => {
         contract.make_available({config: {},}, GAS_MAKE_AVAILABLE, nearAPI.utils.format.parseNearAmount(bid.toString()))
@@ -81,31 +85,40 @@ export default function ContractsTest() {
         }).catch(e => console.error(e));
     }
 
+    const shouldUpdate = useRef(true);
     const handleGenerateEvent = () => {
-        if (typeof myGameID === "number") {
-            contract.generate_event({number_of_rendered_events: 0, game_id: myGameID }, GAS_MOVE)
-                .then(e =>  {
-                    setEventsQueue(e);
-                    // setReceivedEvents(r => r + e.length);
-                    console.log('generate event: ', e)
-                })
-                .catch(e => console.error('generate event: ', e));
-        } else {
-            contract.get_available_games({from_index: 0, limit: 50}).then(r => {
-                const _myGameID = r.filter(game => game[1][0] === wallet.account().accountId || game[1][1] === wallet.account().accountId)[0][0];
-                setMyGameID(_myGameID);
-
-                // contract.generate_event({number_of_rendered_events: receivedEvents, game_id: _myGameID }, GAS_MOVE)
-                contract.generate_event({number_of_rendered_events: 0, game_id: _myGameID }, GAS_MOVE)
-                    .then(e => {
-                        // setEventsQueue(q => [...q, e]);
+        if (shouldUpdate.current) {
+            shouldUpdate.current = false;
+            if (typeof myGameID === "number") {
+                contract.generate_event({number_of_rendered_events: 0, game_id: myGameID }, GAS_MOVE)
+                    .then(e =>  {
+                        shouldUpdate.current = true;
                         setEventsQueue(e);
-                        // setReceivedEvents(r => r + e.length);
+                        setReceivedEvents(r => r + e.length);
                         console.log('generate event: ', e)
                     })
-            }).catch(e => console.error(e));
+                    .catch(e => console.error('generate event: ', e));
+            } else {
+                contract.get_available_games({from_index: 0, limit: 50}).then(r => {
+                    const _myGameID = r.filter(game => game[1][0] === wallet.account().accountId || game[1][1] === wallet.account().accountId)[0][0];
+                    setMyGameID(_myGameID);
+
+                    contract.generate_event({number_of_rendered_events: receivedEvents, game_id: _myGameID }, GAS_MOVE)
+                        .then(e => {
+                            shouldUpdate.current = true;
+                            setEventsQueue(q => [...q, e]);
+                            setEventsQueue(e);
+                            setReceivedEvents(r => r + e.length);
+                            console.log('generate event: ', e)
+                        })
+                }).catch(e => console.error(e));
+            }
         }
     }
+
+    useEffect(()=>{
+        console.log('receivedEvents: ', receivedEvents);
+    }, [receivedEvents]);
 
     getObjects().then(r => {
         const {wallet: _wallet} = r;
@@ -124,15 +137,11 @@ export default function ContractsTest() {
         setAutoGenerate(a => !a);
     }
 
-    const [autoReload, setAutoReload] = useState(false);
-    const [tableIntervalID, setTableIntervalID] = useState(null);
-    const [event, setEvent] = useState(null);
-
     function handleAutoReload() {
         if (!autoReload) {
             setTableIntervalID(setInterval(()=>{
                 setEventsQueue(q => {
-                    console.log(q);
+                    console.log('items to render: ', q);
                     setEvent(q[0] || null);
                     return q.slice(1);
                 });
