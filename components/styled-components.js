@@ -48,7 +48,7 @@ export const AcceptButton = styled.button`
   -webkit-border-radius: 60;
   -moz-border-radius: 60;
   border-radius: 60px;
-  font-family: Venture13;
+  font-family: 'Orbitron', sans-serif;
   font-style: normal;
   font-weight: normal;
   font-size: 34px;
@@ -70,13 +70,20 @@ export const AcceptButton = styled.button`
   }
     `
 
+export const OrbitronFont = styled.p`
+    font-family: 'Orbitron', sans-serif;
+    font-style: normal;
+    font-weight: normal;
+    color: #364EA0;
+    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25)
+`
+
 export const CancelButton = styled.button`
-    
+   font-family: 'Orbitron', sans-serif;
   width: 200px;
   -webkit-border-radius: 60;
   -moz-border-radius: 60;
   border-radius: 60px;
-  font-family: Venture13;
   font-weight: 400;
   font-size: 34px;
   font-style: normal;
