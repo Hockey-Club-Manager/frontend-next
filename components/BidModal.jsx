@@ -1,11 +1,13 @@
+import Link from "next/link";
 import {SModal} from "./settings";
 import {Button, Col, Form, Modal, Row} from "react-bootstrap";
 import {nanoid} from "nanoid";
 import {AcceptButton} from "./styled-components";
 import styled from "styled-components";
 
+
 const BidFont =  styled(Col)`
-    font-family: Venture13;
+    font-family: 'Orbitron', sans-serif;
     font-style: normal;
     font-weight: normal;
     font-size: 60px;
@@ -58,7 +60,7 @@ export default function BidModal({show, onHide, onBtnClick, content}) {
             </PlayModalInputContainer>
             <Row>
                 <PlayModalContainer>
-                    <AcceptButton onClick={onBtnClick}>Offer</AcceptButton>
+                    <Link href='/game'><AcceptButton onClick={onBtnClick}>Offer</AcceptButton></Link>
                 </PlayModalContainer>
             </Row>
         </Form>
