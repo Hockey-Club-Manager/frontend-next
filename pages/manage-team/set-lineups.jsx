@@ -7,29 +7,39 @@ import {AcceptButton, CancelButton, CircleBtn, PlayingCard} from "../../componen
 
 
 
+
+
 const SContainer = styled(Container)`
     svg[data-prefix="fas"] {
       width: 25px;
     }
 
-     width: 1440px;
+    max-width: 1440px;
+    min-width: 300px;
 
 `
 const CircleButtons = styled(Col)`
-   
-   max-width: 200px;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-direction: column
+  flex-direction: column;
+  width: 100%;
+  max-width: 100px;
+  min-width: 50px;
+  
 `
 
 const TopSelectedCard = styled(Col)`
-    max-width: 900px
+    max-width: 900px;
+    min-width: 350px;
+    width: 100%;
 `
 
 const SelectedPlayingCard = styled(Col)`
-    width:500px;
+    width: 100%;
+    max-width: 400px;
+    min-width: 300px;
+    align-items: center;
     margin: 0 auto;
     display:flex;
     justify-content: space-around;
@@ -44,9 +54,7 @@ const  RightSideItems = styled(Col)`
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 300px;
-    margin: 0;
-    padding-bottom: 100px
+
     
 `
 
@@ -62,20 +70,27 @@ const  SRow = styled(Row)`
     display: flex;
     justify-content: center;
     align-items: center;
-    max-width: 1440px
-    max-height: 900px;
+    width: 100%;
+    max-width: 1440px;
+   
+`
+
+const HeaderLineups = styled(Row)`
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
 `
 
 export default function SetLineup() {
     return <SContainer fluid className='p-3'>
-        <Row style={{width: "1440px", display: 'flex', justifyContent: "space-between", alignItems: "center"}} >
+        <HeaderLineups>
             <Col className='col-auto'>
                 <FontAwesomeIcon icon={faArrowLeft}/>
             </Col>
             <Col className='col-auto'>
                 <FontAwesomeIcon icon={faTimes}/>
             </Col>
-        </Row>
+        </HeaderLineups>
         <SRow>
             <CircleButtons xs={1}>
                 <CircleBtn className='mb-2 ' variant='outline-primary'>1</CircleBtn>
@@ -84,7 +99,7 @@ export default function SetLineup() {
                 <CircleBtn className='mb-2'>4</CircleBtn>
             </CircleButtons>
             <TopSelectedCard xs={8}>
-                <SelectedPlayingCard style={{width: "500px", margin: "0 auto"}}>
+                <SelectedPlayingCard >
                     <Col className='col-auto'>
                         <PlayingCard/>
                     </Col>
