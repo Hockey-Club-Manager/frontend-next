@@ -1,7 +1,7 @@
 import {Button, Container, Row, Col, Table} from "react-bootstrap";
 import * as nearAPI from "near-api-js";
 import {getObjects, getGameContract} from "../utils/near";
-import {useEffect, useRef, useState} from "react";
+import {useRef, useState} from "react";
 import {nanoid} from "nanoid";
 import {formatNearAmount} from "../utils/near";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -22,7 +22,6 @@ export default function ContractsTest() {
     const [autoGenerate, setAutoGenerate] = useState(false);
     const [eventsIntervalID, setEventsIntervalID] = useState(null);
     const [eventsQueue, setEventsQueue] = useState([]);
-    const [receivedEvents, setReceivedEvents] = useState(0); // TODO write to & get initial from localhost
     const [autoReload, setAutoReload] = useState(false);
     const [tableIntervalID, setTableIntervalID] = useState(null);
     const [event, setEvent] = useState(null);
@@ -56,8 +55,9 @@ export default function ContractsTest() {
         console.log(selectedOpponentID);
         if (selectedOpponentID) {
             setMyGameID(null);
+            setLocalReceivedEvents(0);
             contract.start_game({opponent_id: selectedOpponentID}, GAS_MAKE_AVAILABLE, nearAPI.utils.format.parseNearAmount(bid.toString())).then(r => {
-                // unused code due to redirect
+                // unreachable code due to redirect
                 console.log(r);
             }).catch(e => console.error(e) )
         } else {
@@ -85,17 +85,48 @@ export default function ContractsTest() {
         }).catch(e => console.error(e));
     }
 
+    const localReceivedEventsKey = 'receivedEvents';
+    function getLocalReceivedEvents() {
+        return parseInt(localStorage.getItem(localReceivedEventsKey) || 0);
+    }
+    function setLocalReceivedEvents(value) {
+        localStorage.setItem(localReceivedEventsKey, value);
+    }
+    function incrementLocalReceivedEvents(incrementBy) {
+        localStorage.setItem(localReceivedEventsKey, getLocalReceivedEvents() + incrementBy);
+    }
+
+    function endGame() {
+        setLocalReceivedEvents(0);
+        clearInterval(eventsIntervalID);
+        setMyGameID(null);
+        console.log('Game ended');
+    }
+
     const shouldUpdate = useRef(true);
     const handleGenerateEvent = () => {
         if (shouldUpdate.current) {
             shouldUpdate.current = false;
             if (typeof myGameID === "number") {
-                contract.generate_event({number_of_rendered_events: receivedEvents, game_id: myGameID }, GAS_MOVE)
+                contract.generate_event({number_of_rendered_events: getLocalReceivedEvents(), game_id: myGameID }, GAS_MOVE)
                     .then(e =>  {
+                        console.log('generate event: ', e)
                         shouldUpdate.current = true;
                         setEventsQueue(q => [...q, e]);
-                        setReceivedEvents(r => r + e.length);
-                        console.log('generate event: ', e)
+                        if (!e.length) {
+                            contract.get_available_games({from_index: 0, limit: 50}).then(r => {
+                                const _myGameID = r.filter(game => game[1][0] === wallet.account().accountId ||
+                                                                    game[1][1] === wallet.account().accountId)[0][0];
+                                if (!_myGameID) endGame();
+                            })
+                            .catch(e => console.error('get evailable games: ', e));
+                        } else {
+                            if(e[e.length - 1]?.action === 'GameFinished') {
+                                endGame();
+                            } else {
+                                incrementLocalReceivedEvents(e.length);
+                            }
+                        }
                     })
                     .catch(e => console.error('generate event: ', e));
             } else {
@@ -105,19 +136,21 @@ export default function ContractsTest() {
 
                     contract.generate_event({number_of_rendered_events: 0, game_id: _myGameID }, GAS_MOVE)
                         .then(e => {
+                            console.log('generate event: ', e)
                             shouldUpdate.current = true;
                             setEventsQueue(e);
-                            setReceivedEvents(r => r + e.length);
-                            console.log('generate event: ', e)
+                            if(e[e.length - 1]?.action === 'GameFinished') {
+                                endGame();
+                            } else {
+                                incrementLocalReceivedEvents(e.length);
+                            }
+                            incrementLocalReceivedEvents(e.length);
                         })
-                }).catch(e => console.error(e));
+                        .catch(e => console.error('generate event: ', e));
+                }).catch(e => console.error('get available games: ', e));
             }
         }
     }
-
-    useEffect(()=>{
-        console.log('receivedEvents: ', receivedEvents);
-    }, [receivedEvents]);
 
     getObjects().then(r => {
         const {wallet: _wallet} = r;
@@ -302,7 +335,7 @@ export default function ContractsTest() {
             </tbody>
             <thead className='table-warning'>
             <tr>
-                <th colSpan='8'>Player with puck in team {event?.player_with_puck.user_id}</th>
+                <th colSpan='8'>Player with puck in team {event?.player_with_puck?.user_id}</th>
             </tr>
             </thead>
             <thead className='table-warning'>
@@ -318,13 +351,13 @@ export default function ContractsTest() {
             </thead>
             <tbody className='table-warning'>
             <tr>
-                <td>{event?.player_with_puck.position}</td>
-                <td>{event?.player_with_puck.role}</td>
-                <td>{event?.player_with_puck.stats.skating}</td>
-                <td>{event?.player_with_puck.stats.shooting}</td>
-                <td>{event?.player_with_puck.stats.strength}</td>
-                <td>{event?.player_with_puck.stats.iq}</td>
-                <td colSpan='2'>{event?.player_with_puck.stats.morale}</td>
+                <td>{event?.player_with_puck?.position}</td>
+                <td>{event?.player_with_puck?.role}</td>
+                <td>{event?.player_with_puck?.stats.skating}</td>
+                <td>{event?.player_with_puck?.stats.shooting}</td>
+                <td>{event?.player_with_puck?.stats.strength}</td>
+                <td>{event?.player_with_puck?.stats.iq}</td>
+                <td colSpan='2'>{event?.player_with_puck?.stats.morale}</td>
             </tr>
             </tbody>
             <thead className='table-danger'>
