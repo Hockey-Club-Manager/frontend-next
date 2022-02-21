@@ -21,15 +21,15 @@ const ResultFont = styled.div`
 export default  function Result() {
     return <Container>
         <Row className='mt-5 justify-content-center '>
-            <Col  className='col-3 justify-content-center d-inline-flex'>
+            <Row className='col-3 justify-content-center'>
                 <FontAwesomeIcon style={{fontSize: "200px"}} icon={faStarOfDavid} />
-            </Col>
+            </Row>
             <Col className='col-auto align-self-center'>
                 <ResultFont className='text-center'>2:0</ResultFont>
             </Col>
-            <Col className='col-3 justify-content-center d-inline-flex'>
+            <Row className='col-3 justify-content-center d-inline-flex'>
                 <FontAwesomeIcon style={{fontSize: "200px"}} icon={faStar} />
-            </Col>
+            </Row>
         </Row>
         <ResultFont className='my-4 text-center'>You won 2 N</ResultFont>
         <Row className='justify-content-center'>

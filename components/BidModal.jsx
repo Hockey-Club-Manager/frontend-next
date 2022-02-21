@@ -60,7 +60,7 @@ export default function BidModal({show, onHide, onBtnClick, content}) {
             </PlayModalInputContainer>
             <Row>
                 <PlayModalContainer>
-                    <Link href='/game'><AcceptButton onClick={onBtnClick}>Offer</AcceptButton></Link>
+                    <Link href='/loader'><AcceptButton onClick={onBtnClick}>Offer</AcceptButton></Link>
                 </PlayModalContainer>
             </Row>
         </Form>
