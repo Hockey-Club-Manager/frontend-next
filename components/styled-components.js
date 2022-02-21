@@ -16,7 +16,10 @@ export const PlayingCard = styled.div`
   background-color: wheat;
   height: 125px;
   width: 80px;
-  border-radius: 10px;
+  
+  &, & img {
+    border-radius: 10px;
+  }
 
   &.goalie {
     margin-top: 140px;
@@ -28,10 +31,13 @@ export const PlayingCard = styled.div`
   &.border {
     border: 1px solid black !important;
   }
+  &.bench img {
+    border: 3px solid white !important;
+  }
   
-  &.sm {
-    height: 65px;
-    width: 45px;
+  &.sm, &.sm img {
+    height: 90px;
+    width: 65px;
   }
   
   &.bottom-left {

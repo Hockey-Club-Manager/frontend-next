@@ -119,7 +119,7 @@ export default function ContractsTest() {
                                                                     game[1][1] === wallet.account().accountId)[0][0];
                                 if (!_myGameID) endGame();
                             })
-                            .catch(e => console.error('get evailable games: ', e));
+                            .catch(e => console.error('get available games: ', e));
                         } else {
                             if(e[e.length - 1]?.action === 'GameFinished') {
                                 endGame();
