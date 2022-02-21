@@ -22,7 +22,7 @@ export default function ContractsTest() {
     const [autoGenerate, setAutoGenerate] = useState(false);
     const [eventsIntervalID, setEventsIntervalID] = useState(null);
     const [eventsQueue, setEventsQueue] = useState([]);
-    const [receivedEvents, setReceivedEvents] = useState(0);
+    const [receivedEvents, setReceivedEvents] = useState(0); // TODO write to & get initial from localhost
     const [autoReload, setAutoReload] = useState(false);
     const [tableIntervalID, setTableIntervalID] = useState(null);
     const [event, setEvent] = useState(null);
@@ -90,10 +90,10 @@ export default function ContractsTest() {
         if (shouldUpdate.current) {
             shouldUpdate.current = false;
             if (typeof myGameID === "number") {
-                contract.generate_event({number_of_rendered_events: 0, game_id: myGameID }, GAS_MOVE)
+                contract.generate_event({number_of_rendered_events: receivedEvents, game_id: myGameID }, GAS_MOVE)
                     .then(e =>  {
                         shouldUpdate.current = true;
-                        setEventsQueue(e);
+                        setEventsQueue(q => [...q, e]);
                         setReceivedEvents(r => r + e.length);
                         console.log('generate event: ', e)
                     })
@@ -103,10 +103,9 @@ export default function ContractsTest() {
                     const _myGameID = r.filter(game => game[1][0] === wallet.account().accountId || game[1][1] === wallet.account().accountId)[0][0];
                     setMyGameID(_myGameID);
 
-                    contract.generate_event({number_of_rendered_events: receivedEvents, game_id: _myGameID }, GAS_MOVE)
+                    contract.generate_event({number_of_rendered_events: 0, game_id: _myGameID }, GAS_MOVE)
                         .then(e => {
                             shouldUpdate.current = true;
-                            setEventsQueue(q => [...q, e]);
                             setEventsQueue(e);
                             setReceivedEvents(r => r + e.length);
                             console.log('generate event: ', e)
