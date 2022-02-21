@@ -12,6 +12,8 @@ import {nanoid} from "nanoid";
 function BidModal ({show, onHide}) {
     const GAS_MAKE_AVAILABLE = 50_000_000_000_000;
 
+    const router = useRouter();
+
     const [bid, setBid] = useState(0.01);
     const [isInList, setIsInList] = useState(false);
     let wallet, contract;
@@ -68,6 +70,17 @@ function BidModal ({show, onHide}) {
         setIsInList(false);
     })
 
+    function handleOpponentWaitingUpdate() {
+        contract.get_available_games({from_index: 0, limit: 50}).then(r => {
+                const _myGameID = r.filter(game => game[1][0] === wallet.account().accountId || game[1][1] === wallet.account().accountId)[0][0];
+                const isInGame = typeof _myGameID === "number";
+
+                if(isInGame) {
+                    router.push('/game-messages');
+                }
+        }).catch(e => console.error('get available games: ', e));
+    }
+
     return <SModal show={show} onHide={onHide} centered>
         <Modal.Header closeButton />
         <Modal.Body>
@@ -91,8 +104,11 @@ function BidModal ({show, onHide}) {
                 <Col className='col-auto'>
                     <h3>Waiting for opponent</h3>
                 </Col>
+                <Col className="col-auto">
+                    <Button variant='outline-secondary' size='sm' onClick={handleOpponentWaitingUpdate}>update</Button>
+                </Col>
                 <Col className='col-auto'>
-                    <Button variant='outline-danger' onClick={handleCancel}>Cancel</Button>
+                    <Button variant='outline-danger' size='sm' onClick={handleCancel}>Cancel</Button>
                 </Col>
             </Row>
             }
@@ -153,22 +169,10 @@ export default function Home() {
                 if(isInGame) {
                     router.push('/game-messages');
                 } else {
-                    contract.is_already_in_the_waiting_list({account_id: wallet.account().accountId}).then(r => {
-                        if (r) {
-                            router.push('/loader');
-                        } else {
-                            showBid();
-                        }
-                    }).catch(e => console.error(e) )
+                    showBid();
                 }
             } else {
-                contract.is_already_in_the_waiting_list({account_id: wallet.account().accountId}).then(r => {
-                    if (r) {
-                        router.push('/loader');
-                    } else {
-                        showBid();
-                    }
-                }).catch(e => console.error(e) )
+                showBid();
             }
 
         }).catch(e => console.error('get available games: ', e));
