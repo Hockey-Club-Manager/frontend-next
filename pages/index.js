@@ -1,54 +1,101 @@
 import Link from "next/link";
-import {Button, Col, Form, Modal, Row, Table} from "react-bootstrap";
-import Settings from "../components/settings";
+import {Alert, Button, Col, Form, Modal, Row, Table} from "react-bootstrap";
+// import Settings from "../components/settings";
 import {useEffect, useState} from "react";
 import {SModal} from "../components/settings";
 import {useRouter} from "next/router";
-import SetTactics from "../components/SetTactics";
+// import SetTactics from "../components/SetTactics";
 import * as nearAPI from "near-api-js";
 import {gameContractName, getGameContract, getObjects} from "../utils/near";
+import {nanoid} from "nanoid";
 
 function BidModal ({show, onHide}) {
+    const GAS_MAKE_AVAILABLE = 50_000_000_000_000;
+
     const [bid, setBid] = useState(0.01);
+    const [isInList, setIsInList] = useState(false);
     let wallet, contract;
     const [availablePlayers, setAvailablePlayers] = useState();
 
     const updateAvailablePlayers = () => {
         contract.get_available_players({from_index: 0, limit: 50}).then(r => {
-            console.log(r);
             setAvailablePlayers(r);
         });
     }
 
-    useEffect(()=> {
-        getObjects().then(r => {
-            const {wallet: _wallet} = r;
-            wallet = _wallet;
-            contract = getGameContract(_wallet);
-            // updateAvailablePlayers();
-            console.log('got objects')
-        });
-    }, []);
+    function updateInTheWaitingList() {
+        contract.is_already_in_the_waiting_list({account_id: wallet.account().accountId}).then(r => {
+            setIsInList(r);
+        }).catch(e => console.error(e) )
+    }
 
+    const handleOffer = () => {
+        makeAvailable();
+    }
+
+    const makeAvailable = () => {
+        if (bid >= 0.01) {
+            contract.make_available({config: {},}, GAS_MAKE_AVAILABLE, nearAPI.utils.format.parseNearAmount(bid.toString()))
+                .catch(e => console.error(e));
+        } else {
+            alert('Minimal bid is 0.01');
+        }
+    }
+
+
+    getObjects().then(r => {
+        const {wallet: _wallet} = r;
+        wallet = _wallet;
+        if (wallet.isSignedIn()) {
+            contract = getGameContract(_wallet);
+            updateInTheWaitingList();
+        }
+    });
+
+    function handleAvailablePlayerClick(player) {
+        if (!(player[0] === wallet.account().accountId)) {
+            contract.start_game({opponent_id: player[0]}, GAS_MAKE_AVAILABLE, player[1].deposit)
+                .then(r => {
+                // unreachable code due to redirect
+                console.log(r);
+            }).catch(e => console.error(e) )
+        } else {
+            alert('You cannot battle against yourself');
+        }
+    }
+    const handleCancel = () => contract.make_unavailable().then(r => {
+        console.log(r);
+        setIsInList(false);
+    })
 
     return <SModal show={show} onHide={onHide} centered>
         <Modal.Header closeButton />
         <Modal.Body>
-            <h3 key='main-bid'>Set your bid for a game</h3>
-            <Row className='mt-3 justify-content-center'>
+            {!isInList ? <>
+            <h3>Set your bid for a game</h3>
+                <Row className='mt-3 justify-content-center'>
+                    <Col className='col-auto'>
+                        <Form.Group>
+                            <div className="input-group input-group-lg" id="big-modal-input">
+                                <input type="number" step='0.01' min='0.01' className='form-control' aria-labelledby="big-modal-input"
+                                       value={bid} onChange={(event)=>setBid(event.target.value)} />
+                                <span className="input-group-text">Ⓝ</span>
+                            </div>
+                        </Form.Group>
+                    </Col>
+                    <Col className='col-auto'>
+                        <Button variant='success' onClick={handleOffer}>Offer</Button>
+                    </Col>
+                </Row>
+            </> : <Row className='justify-content-start'>
                 <Col className='col-auto'>
-                    <Form.Group>
-                        <div className="input-group input-group-lg" id="big-modal-input">
-                            <input type="number" step='0.01' min='0.01' className='form-control' aria-labelledby="big-modal-input"
-                                   value={bid} onChange={(event)=>setBid(event.target.value)} />
-                            <span className="input-group-text">Ⓝ</span>
-                        </div>
-                    </Form.Group>
+                    <h3>Waiting for opponent</h3>
                 </Col>
                 <Col className='col-auto'>
-                    <Button variant='success' onClick={()=>router.push('/loader')}>Offer</Button>
+                    <Button variant='outline-danger' onClick={handleCancel}>Cancel</Button>
                 </Col>
             </Row>
+            }
             <Row className='justify-content-start my-3'>
                 <Col className='col-auto'>
                     <h4><b>or</b> choose opponent from the list</h4>
@@ -57,6 +104,8 @@ function BidModal ({show, onHide}) {
                     <Button variant='outline-secondary' size='sm' onClick={()=>updateAvailablePlayers()}>update</Button>
                 </Col>
             </Row>
+            {availablePlayers && <>
+            {isInList && <Alert variant='danger' siz>Please click "Cancel" before choosing opponent to return your bid</Alert> }
             <Table striped hover bordered variant='warning'>
                 <thead>
                 <tr>
@@ -65,43 +114,81 @@ function BidModal ({show, onHide}) {
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                    <td>kastet99.near</td>
-                    <td>4 Ⓝ</td>
-                </tr>
-                <tr>
-                    <td>let45fc.near</td>
-                    <td>2 Ⓝ</td>
-                </tr>
+                {availablePlayers?.map(player => <tr key={nanoid()} onClick={()=> {
+                    handleAvailablePlayerClick(player);
+                }}>
+                    <td>{player[0]}</td>
+                        <td>{nearAPI.utils.format.formatNearAmount(player[1].deposit)} Ⓝ</td>
+                    </tr>)
+                }
                 </tbody>
             </Table>
+            </>
+            }
         </Modal.Body>
     </SModal>
 }
 
 export default function Home() {
-  const [showSettings, setShowSettings] = useState(false);
-  const [isShowBid, setIsShowBid] = useState(false);
+  // const [showSettings, setShowSettings] = useState(false);
+  const [isShowBidModal, setIsShowBidModal] = useState(false);
   const [isSigned, setIsSigned] = useState(false);
 
-  const showBid = () => setIsShowBid(true);
-  const hideBid = () => setIsShowBid(false);
+  const showBid = () => setIsShowBidModal(true);
+  const hideBid = () => setIsShowBidModal(false);
+
+  let contract, wallet;
+    getObjects().then(r => {
+        const {wallet: _wallet} = r;
+        wallet = _wallet;
+        contract = getGameContract(_wallet);
+    });
+
+    function handlePlayGame() {
+        contract.get_available_games({from_index: 0, limit: 50}).then(r => {
+            if (r.length > 0) {
+                const _myGameID = r.filter(game => game[1][0] === wallet.account().accountId || game[1][1] === wallet.account().accountId)[0][0];
+                const isInGame = typeof _myGameID === "number";
+
+                if(isInGame) {
+                    router.push('/game-messages');
+                } else {
+                    contract.is_already_in_the_waiting_list({account_id: wallet.account().accountId}).then(r => {
+                        if (r) {
+                            router.push('/loader');
+                        } else {
+                            showBid();
+                        }
+                    }).catch(e => console.error(e) )
+                }
+            } else {
+                contract.is_already_in_the_waiting_list({account_id: wallet.account().accountId}).then(r => {
+                    if (r) {
+                        router.push('/loader');
+                    } else {
+                        showBid();
+                    }
+                }).catch(e => console.error(e) )
+            }
+
+        }).catch(e => console.error('get available games: ', e));
+    }
 
   const router = useRouter();
-    const [balance, setBalance] = useState('');
+    // const [balance, setBalance] = useState('');
 
     useEffect(()=> {
         getObjects().then(r => {
-            const {near, wallet} = r;
+            const {wallet} = r;
 
             setIsSigned(wallet.isSignedIn());
-            const walletAccountID = wallet.getAccountId();
+            // const walletAccountID = wallet.getAccountId();
 
-            wallet.isSignedIn() && near.account(walletAccountID).then(account => {
-                account.getAccountBalance().then(_balance => {
-                    setBalance(nearAPI.utils.format.formatNearAmount(_balance.available).slice(0, -14));
-                });
-            })
+            // wallet.isSignedIn() && near.account(walletAccountID).then(account => {
+                // account.getAccountBalance().then(_balance => {
+                    // setBalance(nearAPI.utils.format.formatNearAmount(_balance.available).slice(0, -14));
+                // });
+            // })
         });
     }, []);
 
@@ -122,25 +209,26 @@ export default function Home() {
 
   return (
       <main>
-        <Settings show={showSettings} setShow={setShowSettings} />
-        <Button onClick={()=>setShowSettings(true)}>Settings</Button>
-         <Link href='/trade-cards/buy-cards'><Button>Trade cards</Button></Link>
-         <Button onClick={showBid}>Play game</Button>
-         <BidModal show={isShowBid} onHide={hideBid} />
-          <SetTactics/>
+          {/*<Settings show={showSettings} setShow={setShowSettings} />*/}
+          {/*<Button onClick={()=>setShowSettings(true)}>Settings</Button>*/}
+         {/*<Link href='/trade-cards/buy-cards'><Button>Trade cards</Button></Link>*/}
+         {/* <SetTactics/>*/}
 
-          <Link href='/manage-team/set-lineups'><a className='btn btn-primary'>Set lineups</a></Link>
-          <Link href='/image-menu-test'><a className='btn btn-primary'>Image menu</a></Link>
-          <Link href='/contracts-test'><a className='btn btn-warning'><code>contracts test</code></a></Link>
-          <br/>
-          {isSigned ?
-              <Button variant='dark' onClick={()=>signOut()}>Sign out</Button>
+          {/*<Link href='/manage-team/set-lineups'><a className='btn btn-primary'>Set lineups</a></Link>*/}
+          {/*<Link href='/image-menu-test'><a className='btn btn-primary'>Image menu</a></Link>*/}
+          {isSigned ? <>
+                  <BidModal show={isShowBidModal} onHide={hideBid} />
+                  <Button onClick={handlePlayGame}>Play game</Button>
+                  <Link href='/contracts-test'><a className='btn btn-warning'><code>contracts test</code></a></Link>
+                  <br/>
+                  <Button variant='dark' onClick={()=>signOut()}>Sign out</Button>
+              </>
           :
               <Button variant='dark' onClick={()=>signIn()}>Sign in</Button>
           }
-          {isSigned && <>
-              <h3>{balance}</h3>
-          </>}
+          {/*{isSigned && <>*/}
+          {/*    <h3>{balance}</h3>*/}
+          {/*</>}*/}
       </main>
   )
 }
