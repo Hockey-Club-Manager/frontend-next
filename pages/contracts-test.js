@@ -112,7 +112,6 @@ export default function ContractsTest() {
                     .then(e =>  {
                         console.log('generate event: ', e)
                         shouldUpdate.current = true;
-                        setEventsQueue(q => [...q, e]);
                         if (!e.length) {
                             contract.get_available_games({from_index: 0, limit: 50}).then(r => {
                                 const _myGameID = r.filter(game => game[1][0] === wallet.account().accountId ||
@@ -124,6 +123,7 @@ export default function ContractsTest() {
                             if(e[e.length - 1]?.action === 'GameFinished') {
                                 endGame();
                             } else {
+                                setEventsQueue(q => [...q, ...e]);
                                 incrementLocalReceivedEvents(e.length);
                             }
                         }
@@ -138,13 +138,12 @@ export default function ContractsTest() {
                         .then(e => {
                             console.log('generate event: ', e)
                             shouldUpdate.current = true;
-                            setEventsQueue(e);
+                            incrementLocalReceivedEvents(e.length);
                             if(e[e.length - 1]?.action === 'GameFinished') {
                                 endGame();
                             } else {
-                                incrementLocalReceivedEvents(e.length);
+                                setEventsQueue(e);
                             }
-                            incrementLocalReceivedEvents(e.length);
                         })
                         .catch(e => console.error('generate event: ', e));
                 }).catch(e => console.error('get available games: ', e));
