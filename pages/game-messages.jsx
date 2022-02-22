@@ -2,6 +2,9 @@ import {Container, Row, Col, Button, Dropdown, ButtonGroup} from "react-bootstra
 import {PlayingCard} from "../components/styled-components";
 import styled from "styled-components";
 import {useRouter} from "next/router";
+import {useEffect, useRef, useState} from "react";
+import {getGameContract, getObjects} from "../utils/near";
+import {nanoid} from "nanoid";
 
 const Field = styled.div`
   background-color: #ffffff;
@@ -86,22 +89,179 @@ function Message({playerWithThePuck, action, opponent, username, side}) {
 }
 
 export default function Game() {
-    const router = useRouter();
+    let contract, wallet;
 
+    const router = useRouter();
+    const [eventsQueue, setEventsQueue] = useState([]);
+    const [autoGenerate, setAutoGenerate] = useState(false);
+    const [eventsIntervalID, setEventsIntervalID] = useState(null);
+    const [myGameID, setMyGameID] = useState(null);
+    const [players, setPlayers] = useState(null);
+    const [myPlayerNumber, setMyPlayerNumber] = useState(null);
+    const [autoReload, setAutoReload] = useState(false);
+    const [tableIntervalID, setTableIntervalID] = useState(null);
+    const [event, setEvent] = useState(null);
+    const [eventMessagesBuffer, setEventMessagesBuffer] = useState([]);
+
+    const GAS_MOVE = 50_000_000_000_000;
+    const nonMessageActions = ['Goal', 'Rebound', 'Save', 'Shot'];
+    useEffect(()=>{
+        if (!event || nonMessageActions.includes(event.action)) return;
+        let side;
+        if (event.player_with_puck.user_id === 1) side = 'left';
+        if (event.player_with_puck.user_id === 2) side = 'right';
+
+        let username;
+        if (event.player_with_puck.user_id === myPlayerNumber) {
+            username = players[myPlayerNumber - 1];
+        } else {
+            if (myPlayerNumber === 1) {
+                username = players[1];
+            } else {
+                username = players[0];
+            }
+        }
+        const eventMessage  = {
+            playerWithPuck: '',
+            action: event.action,
+            opponent: '',
+            side: side,
+            username: username,
+        };
+        if (eventMessagesBuffer.length === 7) {
+            setEventMessagesBuffer(b => [...b.slice(-1), eventMessage]);
+        // } else if (eventMessagesBuffer < 7) {
+        //     setEventMessagesBuffer(b => [...b, event])
+        // } else alert('messages buffer > 7');
+        } else setEventMessagesBuffer(b => [...b, eventMessage])
+
+    }, [event]);
+
+    const localReceivedEventsKey = 'receivedEvents';
+    function getLocalReceivedEvents() {
+        return parseInt(localStorage.getItem(localReceivedEventsKey) || 0);
+    }
+    function setLocalReceivedEvents(value) {
+        localStorage.setItem(localReceivedEventsKey, value);
+    }
+    function incrementLocalReceivedEvents(incrementBy) {
+        localStorage.setItem(localReceivedEventsKey, getLocalReceivedEvents() + incrementBy);
+    }
+    function endGame() {
+        setLocalReceivedEvents(0);
+        clearInterval(eventsIntervalID);
+        setMyGameID(null);
+        setPlayers(null);
+        setMyPlayerNumber(null);
+        console.log('Game ended');
+    }
+
+    getObjects().then(r => {
+        const {wallet: _wallet} = r;
+        wallet = _wallet;
+        contract = getGameContract(_wallet);
+    });
+
+    const shouldUpdate = useRef(true);
+    const handleGenerateEvent = () => {
+        if (shouldUpdate.current) {
+            shouldUpdate.current = false;
+            if (typeof myGameID === "number") {
+                contract.generate_event({number_of_rendered_events: getLocalReceivedEvents(), game_id: myGameID }, GAS_MOVE)
+                    .then(e =>  {
+                        console.log('generate event: ', e)
+                        shouldUpdate.current = true;
+                        if (!e.length) {
+                            contract.get_available_games({from_index: 0, limit: 50}).then(r => {
+                                const _myGameID = r.filter(game => game[1][0] === wallet.account().accountId ||
+                                    game[1][1] === wallet.account().accountId)[0][0];
+                                if (!_myGameID) endGame();
+                            })
+                                .catch(e => console.error('get available games: ', e));
+                        } else {
+                            if(e[e.length - 1]?.action === 'GameFinished') {
+                                endGame();
+                            } else {
+                                setEventsQueue(q => [...q, ...e]);
+                                incrementLocalReceivedEvents(e.length);
+                            }
+                        }
+                    })
+                    .catch(e => console.error('generate event: ', e));
+            } else {
+                contract.get_available_games({from_index: 0, limit: 50}).then(r => {
+                    const accountId = wallet.account().accountId;
+                    const myGame = r.filter(game => game[1][0] === accountId || game[1][1] === accountId)[0];
+                    const _myGameID = myGame[0];
+                    setMyGameID(_myGameID);
+                    setPlayers(myGame[1]);
+                    setMyPlayerNumber(myGame[1].indexOf(accountId) + 1);
+
+                    contract.generate_event({number_of_rendered_events: 0, game_id: _myGameID }, GAS_MOVE)
+                        .then(e => {
+                            console.log('generate event: ', e)
+                            shouldUpdate.current = true;
+                            incrementLocalReceivedEvents(e.length);
+                            if(e[e.length - 1]?.action === 'GameFinished') {
+                                endGame();
+                            } else {
+                                setEventsQueue(e);
+                            }
+                        })
+                        .catch(e => console.error('generate event: ', e));
+                }).catch(e => console.error('get available games: ', e));
+            }
+        }
+    }
+
+    const switchAutoGenerate = () => {
+        if (!autoGenerate) {
+            setEventsIntervalID(setInterval(()=>{
+                handleGenerateEvent();
+            }, 1000))
+        } else {
+            clearInterval(eventsIntervalID);
+        }
+        setAutoGenerate(a => !a);
+    }
+    function switchAutoReload() {
+        if (!autoReload) {
+            setTableIntervalID(setInterval(()=>{
+                setEventsQueue(q => {
+                    console.log('items to render: ', q);
+                    setEvent(q[0] || null);
+                    return q.slice(1);
+                });
+            }, 1000));
+        } else {
+            clearInterval(tableIntervalID);
+        }
+        setAutoReload(a => !a);
+    }
     return <Container>
         <Row className='mt-4'>
             <Col className='text-center' xs={5}>
                 <h1>Period 2</h1>
                 <Field>
-                    <Message playerWithThePuck={3} action='Battle' opponent={4} side='left' username='kastet99.near' />
-                    <Message playerWithThePuck={8} action='Battle' opponent={6} side='right' username='let45fc.near' />
+                    {eventMessagesBuffer?.map(e =>
+                    {
+                    return <Message
+                        key={nanoid()}
+                        playerWithThePuck={e.playerWithPuck}
+                        action={e.action}
+                        opponent={e.opponent}
+                        side={e.side}
+                        username={e.username}
+                    />
+                    }
+                    )}
                 </Field>
                 <Row className='mt-4 justify-content-between'>
                     <Col className='col-auto'>
-                        <Button>Take TO</Button>
+                        <Button onClick={switchAutoGenerate}>Take TO</Button>
                     </Col>
                     <Col className='col-auto'>
-                        <Button>Empty net</Button>
+                        <Button onClick={switchAutoReload}>Empty net</Button>
                     </Col>
                     <Col className='col-auto'>
                         <Button>Take speech</Button>
