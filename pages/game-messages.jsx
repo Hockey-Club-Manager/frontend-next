@@ -11,7 +11,7 @@ const Field = styled.div`
   background-position: center;
   background-repeat: no-repeat;
   height: 500px;
-  overflow: auto;
+  overflow-y: auto;
 `
 
 const LogoSquare = styled.div`
@@ -51,21 +51,38 @@ const Timer = styled.div`
 `
 
 const MessageDiv = styled.div`
-  background-color: #bfbfbf;
+  background-color: #ededed;
+  width: 200px;
   
   &.left {
     border: 2px solid #5161ee;
+    border-radius: 20px 20px 20px 0;
+    margin-left: 20px;
+    & h5 {
+      color: #5161ee;
+    }
   }
   &.right {
     border: 2px solid #ef615f;
+    border-radius: 20px 20px 0 20px;
+    margin-right: 20px;
+    & h5 {
+      color: #ef615f;
+    }
   }
 `
 
 function Message({playerWithThePuck, action, opponent, username, side}) {
-    return <MessageDiv className={side}>
-        <div className="username">{username}</div>
-        <p>{playerWithThePuck} {action} {opponent}</p>
-    </MessageDiv>
+    return <div className={`d-flex justify-content-${side === 'left' ? 'start' : 'end'} my-2`}>
+        <MessageDiv className={side}>
+            <Row className='justify-content-start'>
+                <Col className="col-auto ms-3">
+                    <div className="username">{username}</div>
+                </Col>
+            </Row>
+            <h5>{playerWithThePuck} {action} {opponent}</h5>
+        </MessageDiv>
+    </div>
 }
 
 export default function Game() {
