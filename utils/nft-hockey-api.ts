@@ -39,8 +39,26 @@ export class FieldPlayer {
         public position: PlayerPosition,
         public positionCoefficient: number,
         public role: PlayerRole,
+        public userID: number,
         public stats: PlayerStats,
     ) {}
+
+    static fromJSON(json) {
+        return new FieldPlayer(
+            json.native_position,
+            json.position,
+            json.position_coefficient,
+            json.role,
+            json.user_id,
+            {
+                skating: json.stats.skating,
+                shooting: json.stats.shooting,
+                strength: json.stats.strength,
+                iq: json.stats.iq,
+                morale: json.stats.morale,
+            }
+        );
+    }
 }
 
 export enum Fives {
@@ -60,11 +78,26 @@ export enum IceTimePriority {
 
 export class Five {
     constructor(
-        public fieldPlayers: Map<String, FieldPlayer>,
+        public fieldPlayers: Map<number, FieldPlayer>,
         public number: Fives,
         public iceTimePriority: IceTimePriority,
         public timeField: number,
     ) {}
+
+    static fromJSON(json) {
+        const fieldPlayers = new Map<number, FieldPlayer>();
+
+        for (let playerNum in json.field_players) {
+            fieldPlayers[playerNum] = FieldPlayer.fromJSON(json.field_players[playerNum]);
+        }
+
+        return new Five(
+            fieldPlayers,
+            json.number,
+            json.ice_time_priority,
+            json.time_field
+        );
+    }
 }
 
 export interface GoalieStats {
@@ -81,6 +114,20 @@ export class Goalie {
         public userID: number,
         public stats: GoalieStats,
     ) {}
+
+    static fromJSON(json) {
+        return new Goalie(
+            json.role,
+            json.user_id,
+            {
+                gloveAndBlocker: json.stats.glove_and_blocker,
+                pads: json.stats.pads,
+                stand: json.stats.stand,
+                stretch: json.stats.stretch,
+                morale: json.stats.morale,
+            }
+        )
+    }
 }
 
 export class Team {
@@ -89,6 +136,14 @@ export class Team {
        public goalie: Goalie,
        public score: number,
     ) {}
+
+    static fromJSON(json) {
+        return new Team(
+            Five.fromJSON(json.five),
+            Goalie.fromJSON(json.goalie),
+            json.score,
+        )
+    }
 }
 
 export enum ActionTypes {
@@ -126,4 +181,15 @@ export class Event {
         public myTeam: Team,
         public opponentTeam: Team,
     ) {}
+
+    static fromJSON(json) {
+        return new Event(
+            FieldPlayer.fromJSON(json.player_with_puck),
+            json.action,
+            json.zone_number,
+            json.time,
+            Team.fromJSON(json.my_team),
+            Team.fromJSON(json.opponent_team)
+        );
+    }
 }
