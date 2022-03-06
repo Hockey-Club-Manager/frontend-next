@@ -268,7 +268,6 @@ export default function ContractsTest() {
             </thead>
             <tbody>
             <tr>
-                {/*<td>Battle</td>*/}
                 <td>{event?.action}</td>
                 <td colSpan='7'>{event?.zone_number}</td>
             </tr>
@@ -296,15 +295,15 @@ export default function ContractsTest() {
             </tr>
             </thead>
             <tbody className='table-primary'>
-            {event?.my_team?.field_players && Object.keys(event?.my_team?.field_players).map((k) => <tr key={nanoid()}>
+            {event?.my_team?.five?.field_players && Object.keys(event?.my_team?.five?.field_players).map((k) => <tr key={nanoid()}>
                 <td>{k}</td>
-                <td>{event?.my_team?.field_players[k].position}</td>
-                <td>{event?.my_team?.field_players[k].role}</td>
-                <td>{event?.my_team?.field_players[k].stats.skating}</td>
-                <td>{event?.my_team?.field_players[k].stats.shooting}</td>
-                <td>{event?.my_team?.field_players[k].stats.strength}</td>
-                <td>{event?.my_team?.field_players[k].stats.iq}</td>
-                <td>{event?.my_team?.field_players[k].stats.morale}</td>
+                <td>{event?.my_team?.five?.field_players[k].position}</td>
+                <td>{event?.my_team?.five?.field_players[k].role}</td>
+                <td>{event?.my_team?.five?.field_players[k].stats.skating}</td>
+                <td>{event?.my_team?.five?.field_players[k].stats.shooting}</td>
+                <td>{event?.my_team?.five?.field_players[k].stats.strength}</td>
+                <td>{event?.my_team?.five?.field_players[k].stats.iq}</td>
+                <td>{event?.my_team?.five?.field_players[k].stats.morale}</td>
             </tr>)}
             </tbody>
             <thead className='table-primary'>
@@ -382,15 +381,15 @@ export default function ContractsTest() {
             </tr>
             </thead>
             <tbody className='table-danger'>
-            {event?.opponent_team?.field_players && Object.keys(event?.opponent_team?.field_players).map((k) => <tr key={nanoid()}>
+            {event?.opponent_team?.five?.field_players && Object.keys(event?.opponent_team?.five?.field_players).map((k) => <tr key={nanoid()}>
                 <td>{k}</td>
-                <td>{event?.opponent_team?.field_players[k].position}</td>
-                <td>{event?.opponent_team?.field_players[k].role}</td>
-                <td>{event?.opponent_team?.field_players[k].stats.skating}</td>
-                <td>{event?.opponent_team?.field_players[k].stats.shooting}</td>
-                <td>{event?.opponent_team?.field_players[k].stats.strength}</td>
-                <td>{event?.opponent_team?.field_players[k].stats.iq}</td>
-                <td>{event?.opponent_team?.field_players[k].stats.morale}</td>
+                <td>{event?.opponent_team?.five?.field_players[k].position}</td>
+                <td>{event?.opponent_team?.five?.field_players[k].role}</td>
+                <td>{event?.opponent_team?.five?.field_players[k].stats.skating}</td>
+                <td>{event?.opponent_team?.five?.field_players[k].stats.shooting}</td>
+                <td>{event?.opponent_team?.five?.field_players[k].stats.strength}</td>
+                <td>{event?.opponent_team?.five?.field_players[k].stats.iq}</td>
+                <td>{event?.opponent_team?.five?.field_players[k].stats.morale}</td>
             </tr>)}
             </tbody>
             <thead className='table-danger'>
