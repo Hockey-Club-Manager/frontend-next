@@ -1,10 +1,11 @@
-import {Container, Row, Col, Button, Dropdown, ButtonGroup} from "react-bootstrap";
+import {Button, ButtonGroup, Col, Container, Dropdown, Row} from "react-bootstrap";
 import {PlayingCard} from "../components/styled-components";
 import styled from "styled-components";
 import {useRouter} from "next/router";
 import {useEffect, useRef, useState} from "react";
 import {getGameContract, getObjects} from "../utils/near";
 import {nanoid} from "nanoid";
+import {Event, nonMessageActions, PlayerSide, UserID} from "../utils/nft-hockey-api";
 
 const Field = styled.div`
   background-color: #ffffff;
@@ -31,7 +32,6 @@ const LogoSquare = styled.div`
     background-color: #ef615f;
   }
 `
-
 
 const SelectDropdownBtn = styled(Button)`
   width: 300px;
@@ -97,22 +97,19 @@ export default function Game() {
     const [eventsIntervalID, setEventsIntervalID] = useState(null);
     const [myGameID, setMyGameID] = useState(null);
     const [players, setPlayers] = useState(null);
-    const [myPlayerNumber, setMyPlayerNumber] = useState(null);
+    const [myPlayerNumber, setMyPlayerNumber] = useState<UserID>(null);
     const [autoReload, setAutoReload] = useState(false);
     const [tableIntervalID, setTableIntervalID] = useState(null);
-    const [event, setEvent] = useState(null);
+    const [event, setEvent] = useState<Event>(null);
     const [eventMessagesBuffer, setEventMessagesBuffer] = useState([]);
 
     const GAS_MOVE = 50_000_000_000_000;
-    const nonMessageActions = ['Goal', 'Rebound', 'Save', 'Shot'];
     useEffect(()=>{
         if (!event || nonMessageActions.includes(event.action)) return;
-        let side;
-        if (event.player_with_puck.user_id === 1) side = 'left';
-        if (event.player_with_puck.user_id === 2) side = 'right';
+        const side: PlayerSide = event.playerWithPuck.userID === 1 ? 'left' : 'right';
 
         let username;
-        if (event.player_with_puck.user_id === myPlayerNumber) {
+        if (event.playerWithPuck.userID === myPlayerNumber) {
             username = players[myPlayerNumber - 1];
         } else {
             if (myPlayerNumber === 1) {
@@ -121,7 +118,7 @@ export default function Game() {
                 username = players[0];
             }
         }
-        const eventMessage  = {
+        const eventMessage = {
             playerWithPuck: '',
             action: event.action,
             opponent: '',
@@ -139,7 +136,7 @@ export default function Game() {
 
     const localReceivedEventsKey = 'receivedEvents';
     function getLocalReceivedEvents() {
-        return parseInt(localStorage.getItem(localReceivedEventsKey) || 0);
+        return parseInt(localStorage.getItem(localReceivedEventsKey)) || 0;
     }
     function setLocalReceivedEvents(value) {
         localStorage.setItem(localReceivedEventsKey, value);
@@ -182,7 +179,8 @@ export default function Game() {
                             if(e[e.length - 1]?.action === 'GameFinished') {
                                 endGame();
                             } else {
-                                setEventsQueue(q => [...q, ...e]);
+                                const eventObjects = e.map(_e => Event.fromJSON(_e));
+                                setEventsQueue(q => [...q, ...eventObjects]);
                                 incrementLocalReceivedEvents(e.length);
                             }
                         }
@@ -205,7 +203,8 @@ export default function Game() {
                             if(e[e.length - 1]?.action === 'GameFinished') {
                                 endGame();
                             } else {
-                                setEventsQueue(e);
+                                const eventObjects = e.map(_e => Event.fromJSON(_e));
+                                setEventsQueue(eventObjects);
                             }
                         })
                         .catch(e => console.error('generate event: ', e));

@@ -33,13 +33,14 @@ export enum PlayerRole {
     Post2Post = "Post2Post",
 }
 
+export type UserID = 1|2;
 export class FieldPlayer {
     constructor(
         public nativePosition: PlayerPosition,
         public position: PlayerPosition,
         public positionCoefficient: number,
         public role: PlayerRole,
-        public userID: number,
+        public userID: UserID,
         public stats: PlayerStats,
     ) {}
 
@@ -111,7 +112,7 @@ export interface GoalieStats {
 export class Goalie {
     constructor(
         public role: PlayerRole,
-        public userID: number,
+        public userID: UserID,
         public stats: GoalieStats,
     ) {}
 
@@ -171,6 +172,8 @@ export enum ActionTypes {
     FirstTeamChangeActiveFive = "FirstTeamChangeActiveFive",
     SecondTeamChangeActiveFive = "SecondTeamChangeActiveFive",
 }
+export const nonMessageActions: ActionTypes[] =
+    [ActionTypes.Goal, ActionTypes.Rebound, ActionTypes.Save,ActionTypes.Shot];
 
 export class Event {
     constructor(
@@ -193,3 +196,5 @@ export class Event {
         );
     }
 }
+
+export type PlayerSide = 'left'|'right';

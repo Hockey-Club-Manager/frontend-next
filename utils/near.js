@@ -1,6 +1,6 @@
 import * as nearAPI from "near-api-js";
 
-export const gameContractName = "dev-1645288206086-91527018499770";
+export const gameContractName = "zaibavsya.testnet";
 
 export async function getObjects() {
     const config = {
