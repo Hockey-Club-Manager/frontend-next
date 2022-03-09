@@ -4,18 +4,60 @@ import styled from "styled-components";
 import {useRouter} from "next/router";
 import {useEffect, useRef, useState} from "react";
 import {getGameContract, getObjects} from "../utils/near";
-import {nanoid} from "nanoid";
+
 
 const Field = styled.div`
+  display: flex;
   background-color: #ffffff;
-  background-image: url("/field-background.png");
-  border-radius: 30px;
-  background-size: auto 500px;
-  background-position: center;
-  background-repeat: no-repeat;
+  border-radius: 40px;
+  margin: 0 auto;
   height: 500px;
+  width: 300px;
   overflow-y: auto;
+  text-align: center;
+  vertical-align: middle;
+
 `
+
+const GameField = (props) => {
+     const [positionX, setPositionX] = useState(135)
+     const [positionY, setPositionY] = useState(235)
+     const [changePositionX, setChangeNewPositionX] = useState(10)
+     const [changePositionY, setChangeNewPositionY] = useState(15)
+
+    const Puck = styled.div`
+    background: #456BD9;
+    border-radius: 50%;
+    transform: translate(${positionX}px, ${positionY}px);
+    transition: 0.5s ease-in-out;
+    height: 30px;
+    width: 30px; 
+ `
+
+    useEffect(()=>{
+        if(positionY + changePositionY < 485 && positionY + changePositionY > 15 ){
+            setPositionY(positionY+ changePositionY)
+        }
+    }, [changePositionY])
+    useEffect(()=>{
+        if(positionX + changePositionX < 485 && positionX + changePositionX > 15 ){
+            setPositionX(positionX + changePositionX)
+        }
+    }, [changePositionX])
+
+
+
+
+    return (
+        <>
+            <Field>
+                <Puck/>
+            </Field>
+        </>
+    )
+
+}
+
 
 const LogoSquare = styled.div`
   height: 60px;
@@ -102,10 +144,15 @@ export default function Game() {
     const [tableIntervalID, setTableIntervalID] = useState(null);
     const [event, setEvent] = useState(null);
     const [eventMessagesBuffer, setEventMessagesBuffer] = useState([]);
-
+    const [seconds, setSeconds] = useState(10);
+    const [timerActive, setTimerActive] = useState(false);
     const GAS_MOVE = 50_000_000_000_000;
     const nonMessageActions = ['Goal', 'Rebound', 'Save', 'Shot'];
-    useEffect(()=>{
+
+    const minutes = Math.floor(seconds / 60)
+    const secondsTimer = seconds % 60;
+
+    useEffect(() => {
         if (!event || nonMessageActions.includes(event.action)) return;
         let side;
         if (event.player_with_puck.user_id === 1) side = 'left';
@@ -121,7 +168,7 @@ export default function Game() {
                 username = players[0];
             }
         }
-        const eventMessage  = {
+        const eventMessage = {
             playerWithPuck: '',
             action: event.action,
             opponent: '',
@@ -130,23 +177,35 @@ export default function Game() {
         };
         if (eventMessagesBuffer.length === 7) {
             setEventMessagesBuffer(b => [...b.slice(-1), eventMessage]);
-        // } else if (eventMessagesBuffer < 7) {
-        //     setEventMessagesBuffer(b => [...b, event])
-        // } else alert('messages buffer > 7');
+            // } else if (eventMessagesBuffer < 7) {
+            //     setEventMessagesBuffer(b => [...b, event])
+            // } else alert('messages buffer > 7');
         } else setEventMessagesBuffer(b => [...b, eventMessage])
 
     }, [event]);
 
+    useEffect(() => {
+        if (seconds > 0 && timerActive) {
+            setTimeout(setSeconds, 1000, seconds - 1);
+        } else {
+            setTimerActive(false);
+        }
+    }, [seconds, timerActive]);
+
     const localReceivedEventsKey = 'receivedEvents';
+
     function getLocalReceivedEvents() {
         return parseInt(localStorage.getItem(localReceivedEventsKey) || 0);
     }
+
     function setLocalReceivedEvents(value) {
         localStorage.setItem(localReceivedEventsKey, value);
     }
+
     function incrementLocalReceivedEvents(incrementBy) {
         localStorage.setItem(localReceivedEventsKey, getLocalReceivedEvents() + incrementBy);
     }
+
     function endGame() {
         setLocalReceivedEvents(0);
         clearInterval(eventsIntervalID);
@@ -167,8 +226,11 @@ export default function Game() {
         if (shouldUpdate.current) {
             shouldUpdate.current = false;
             if (typeof myGameID === "number") {
-                contract.generate_event({number_of_rendered_events: getLocalReceivedEvents(), game_id: myGameID }, GAS_MOVE)
-                    .then(e =>  {
+                contract.generate_event({
+                    number_of_rendered_events: getLocalReceivedEvents(),
+                    game_id: myGameID
+                }, GAS_MOVE)
+                    .then(e => {
                         console.log('generate event: ', e)
                         shouldUpdate.current = true;
                         if (!e.length) {
@@ -179,7 +241,7 @@ export default function Game() {
                             })
                                 .catch(e => console.error('get available games: ', e));
                         } else {
-                            if(e[e.length - 1]?.action === 'GameFinished') {
+                            if (e[e.length - 1]?.action === 'GameFinished') {
                                 endGame();
                             } else {
                                 setEventsQueue(q => [...q, ...e]);
@@ -197,12 +259,12 @@ export default function Game() {
                     setPlayers(myGame[1]);
                     setMyPlayerNumber(myGame[1].indexOf(accountId) + 1);
 
-                    contract.generate_event({number_of_rendered_events: 0, game_id: _myGameID }, GAS_MOVE)
+                    contract.generate_event({number_of_rendered_events: 0, game_id: _myGameID}, GAS_MOVE)
                         .then(e => {
                             console.log('generate event: ', e)
                             shouldUpdate.current = true;
                             incrementLocalReceivedEvents(e.length);
-                            if(e[e.length - 1]?.action === 'GameFinished') {
+                            if (e[e.length - 1]?.action === 'GameFinished') {
                                 endGame();
                             } else {
                                 setEventsQueue(e);
@@ -216,17 +278,19 @@ export default function Game() {
 
     const switchAutoGenerate = () => {
         if (!autoGenerate) {
-            setEventsIntervalID(setInterval(()=>{
+            setEventsIntervalID(setInterval(() => {
                 handleGenerateEvent();
             }, 1000))
         } else {
             clearInterval(eventsIntervalID);
         }
         setAutoGenerate(a => !a);
+        setTimerActive(!timerActive)
     }
+
     function switchAutoReload() {
         if (!autoReload) {
-            setTableIntervalID(setInterval(()=>{
+            setTableIntervalID(setInterval(() => {
                 setEventsQueue(q => {
                     console.log('items to render: ', q);
                     setEvent(q[0] || null);
@@ -238,24 +302,12 @@ export default function Game() {
         }
         setAutoReload(a => !a);
     }
+
     return <Container>
         <Row className='mt-4'>
             <Col className='text-center' xs={5}>
-                <h1>Period 2</h1>
-                <Field>
-                    {eventMessagesBuffer?.map(e =>
-                    {
-                    return <Message
-                        key={nanoid()}
-                        playerWithThePuck={e.playerWithPuck}
-                        action={e.action}
-                        opponent={e.opponent}
-                        side={e.side}
-                        username={e.username}
-                    />
-                    }
-                    )}
-                </Field>
+                <h1>Period 1</h1>
+                <GameField/>
                 <Row className='mt-4 justify-content-between'>
                     <Col className='col-auto'>
                         <Button onClick={switchAutoGenerate}>Take TO</Button>
@@ -273,37 +325,37 @@ export default function Game() {
                     <Col xs={8}>
                         <Row className='justify-content-start'>
                             <Col className='col-auto'>
-                                <LogoSquare className='u-1' />
+                                <LogoSquare className='u-1'/>
                             </Col>
                             <Col className='col-auto'>
-                                <h1>2 - 0</h1>
+                                <h1>0 - 0</h1>
                             </Col>
                             <Col className='col-auto'>
-                                <LogoSquare className='u-2' />
+                                <LogoSquare className='u-2'/>
                             </Col>
                         </Row>
                         <Row className='mt-5 justify-content-around'>
                             <Col className='col-auto'>
-                                <PlayingCard />
+                                <PlayingCard/>
                             </Col>
                             <Col className='col-auto'>
-                                <PlayingCard />
+                                <PlayingCard/>
                             </Col>
                             <Col className='col-auto'>
-                                <PlayingCard />
+                                <PlayingCard/>
                             </Col>
                         </Row>
                         <Row className='mt-3 mb-5 justify-content-around'>
                             <Col className='col-auto'>
-                                <PlayingCard className='bottom-left' />
+                                <PlayingCard className='bottom-left'/>
                             </Col>
                             <Col className='col-auto'>
-                                <PlayingCard className='bottom-right' />
+                                <PlayingCard className='bottom-right'/>
                             </Col>
                         </Row>
                         <Dropdown as={ButtonGroup} className='mt-5 mb-3'>
                             <SelectDropdownBtn variant='outline-primary'>Tactics</SelectDropdownBtn>
-                            <Dropdown.Toggle variant='outline-primary' />
+                            <Dropdown.Toggle variant='outline-primary'/>
                             <Dropdown.Menu>
                                 <Dropdown.Item>Not </Dropdown.Item>
                                 <Dropdown.Item>yet</Dropdown.Item>
@@ -312,16 +364,16 @@ export default function Game() {
                         </Dropdown>
                     </Col>
                     <Col>
-                        <PlayingCard className='goalie-game' />
+                        <PlayingCard className='goalie-game'/>
                         <BenchRow className='justify-content-center'>
                             <Col xs={1} className='m-0'>
                                 <PlayingCard className='sm bench'>
-                                    <img src='/card-back-yellow.png' />
+                                    <img src='/card-back-yellow.png'/>
                                 </PlayingCard>
                             </Col>
                             <Col className='m-0'>
                                 <PlayingCard className='sm bench'>
-                                    <img src='/card-back-blue.png' />
+                                    <img src='/card-back-blue.png'/>
                                 </PlayingCard>
                             </Col>
                         </BenchRow>
@@ -329,6 +381,6 @@ export default function Game() {
                 </Row>
             </Col>
         </Row>
-        <Timer>2:32</Timer>
+        <Timer>{minutes}:{secondsTimer}</Timer>
     </Container>
 }
