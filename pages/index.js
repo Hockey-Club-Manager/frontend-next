@@ -1,13 +1,14 @@
 import Link from "next/link";
 import {Alert, Button, Col, Form, Modal, Row, Table} from "react-bootstrap";
-// import Settings from "../components/settings";
+
 import {useEffect, useState} from "react";
-import {SModal} from "../components/settings";
+import Settings, {SModal} from "../components/settings";
 import {useRouter} from "next/router";
 // import SetTactics from "../components/SetTactics";
 import * as nearAPI from "near-api-js";
 import {gameContractName, getGameContract, getObjects} from "../utils/near";
 import {nanoid} from "nanoid";
+import dynamic from "next/dynamic";
 
 function BidModal ({show, onHide}) {
     const GAS_MAKE_AVAILABLE = 50_000_000_000_000;
@@ -146,14 +147,15 @@ function BidModal ({show, onHide}) {
 }
 
 export default function Home() {
-  // const [showSettings, setShowSettings] = useState(false);
+
   const [isShowBidModal, setIsShowBidModal] = useState(false);
   const [isSigned, setIsSigned] = useState(false);
 
   const showBid = () => setIsShowBidModal(true);
   const hideBid = () => setIsShowBidModal(false);
 
-  let contract, wallet;
+
+    let contract, wallet;
     getObjects().then(r => {
         const {wallet: _wallet} = r;
         wallet = _wallet;
@@ -210,6 +212,12 @@ export default function Home() {
             setIsSigned(false);
         })
     };
+    // отключить SSR
+    const PlayerWithoutSSR = dynamic(() => import("../components/settings"), {
+        ssr: false
+    })
+    // Проверка на сторону клиента
+    const isServer = () => typeof window === 'undefined';
 
   return (
       <main>
@@ -223,6 +231,8 @@ export default function Home() {
           {isSigned ? <>
                   <BidModal show={isShowBidModal} onHide={hideBid} />
                   <Button onClick={handlePlayGame}>Play game</Button>
+
+                  {!isServer() && <PlayerWithoutSSR />}
                   <Link href='/contracts-test'><a className='btn btn-warning'><code>contracts test</code></a></Link>
                   <br/>
                   <Button variant='dark' onClick={()=>signOut()}>Sign out</Button>

@@ -2,6 +2,9 @@ import { Row, Col, Modal, Form, Button } from 'react-bootstrap';
 import styled from "styled-components";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faSquare} from "@fortawesome/free-solid-svg-icons";
+import {useState} from "react";
+import {Player} from "./Audio";
+
 
 export const SModal = styled(Modal)`
   .modal-content {
@@ -14,10 +17,13 @@ export const SModal = styled(Modal)`
   }
 `
 
-export default function Settings({show, setShow}) {
-    const handleClose = () => setShow(false);
-
-    return <SModal show={show} onHide={handleClose} centered>
+export default function Settings({show, setShow}, props) {
+    const [isShowSettings, setIsShowSettings] = useState(false);
+    const showSettings = () => setIsShowSettings(true);
+    const hideSettings = () => setIsShowSettings(false);
+    return <>
+    <Button onClick={showSettings}>Settings</Button>
+    <SModal show={isShowSettings} onHide={hideSettings} centered>
         <Modal.Header closeButton />
         <Modal.Body>
             <Form>
@@ -44,6 +50,10 @@ export default function Settings({show, setShow}) {
                     </Col>
                 </Row>
                 <Row>
+                    Sound
+                    <Player />
+                </Row>
+                <Row>
                     <Col>
                         <Button>Cancel</Button>
                     </Col>
@@ -54,4 +64,5 @@ export default function Settings({show, setShow}) {
             </Form>
         </Modal.Body>
     </SModal>
+        </>
 }
