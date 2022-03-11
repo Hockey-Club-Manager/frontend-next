@@ -2,12 +2,13 @@ import Link from "next/link";
 import {Alert, Button, Col, Form, Modal, Row, Table} from "react-bootstrap";
 // import Settings from "../components/settings";
 import {useEffect, useState} from "react";
-import {SModal} from "../components/settings";
+import Settings, {SModal} from "../components/settings";
 import {useRouter} from "next/router";
 // import SetTactics from "../components/SetTactics";
 import * as nearAPI from "near-api-js";
 import {gameContractName, getGameContract, getObjects} from "../utils/near";
 import {nanoid} from "nanoid";
+import SetTactics from "../components/SetTactics";
 
 function BidModal ({show, onHide}) {
     const GAS_MAKE_AVAILABLE = 50_000_000_000_000;
@@ -146,7 +147,7 @@ function BidModal ({show, onHide}) {
 }
 
 export default function Home() {
-  // const [showSettings, setShowSettings] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [isShowBidModal, setIsShowBidModal] = useState(false);
   const [isSigned, setIsSigned] = useState(false);
 
@@ -213,13 +214,13 @@ export default function Home() {
 
   return (
       <main>
-          {/*<Settings show={showSettings} setShow={setShowSettings} />*/}
-          {/*<Button onClick={()=>setShowSettings(true)}>Settings</Button>*/}
-         {/*<Link href='/trade-cards/buy-cards'><Button>Trade cards</Button></Link>*/}
-         {/* <SetTactics/>*/}
+          <Settings show={showSettings} setShow={setShowSettings} />
+          <Button onClick={()=>setShowSettings(true)}>Settings</Button>
+         <Link href='/trade-cards/buy-cards'><Button>Trade cards</Button></Link>
+          <SetTactics/>
 
-          {/*<Link href='/manage-team/set-lineups'><a className='btn btn-primary'>Set lineups</a></Link>*/}
-          {/*<Link href='/image-menu-test'><a className='btn btn-primary'>Image menu</a></Link>*/}
+          <Link href='/manage-team/set-lineups'><a className='btn btn-primary'>Set lineups</a></Link>
+          <Link href='/image-menu-test'><a className='btn btn-primary'>Image menu</a></Link>
           {isSigned ? <>
                   <BidModal show={isShowBidModal} onHide={hideBid} />
                   <Button onClick={handlePlayGame}>Play game</Button>

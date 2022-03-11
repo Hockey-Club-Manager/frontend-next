@@ -1,6 +1,19 @@
 import * as nearAPI from "near-api-js";
 
-export const gameContractName = "zaibavsya.testnet";
+export const gameContractName = "uriyyuriy.testnet";
+export const marketContractName = "market_hock.testnet";
+export const nftContractName = "nft_hock.testnet";
+
+export async function getConfig() {
+    return {
+        networkId: "testnet",
+        keyStore: new nearAPI.keyStores.BrowserLocalStorageKeyStore(),
+        nodeUrl: "https://rpc.testnet.near.org",
+        walletUrl: "https://wallet.testnet.near.org",
+        helperUrl: "https://helper.testnet.near.org",
+        explorerUrl: "https://explorer.testnet.near.org",
+    };
+}
 
 export async function getObjects() {
     const config = {
@@ -28,6 +41,29 @@ export function getGameContract(wallet) {
         }
     );
 }
+
+export function getMarketContract(wallet) {
+    return new nearAPI.Contract(
+        wallet.account(),
+        marketContractName,
+        {
+            viewMethods: [],
+            changeMethods: [],
+        }
+    );
+}
+
+export function getNftContract(wallet) {
+    return new nearAPI.Contract(
+        wallet.account(),
+        nftContractName,
+        {
+            viewMethods: [],
+            changeMethods: ["nft_mint"],
+        }
+    );
+}
+
 
 const NEAR_NOMINATION = 1_000_000_000_000_000_000_000_000;
 

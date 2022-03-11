@@ -18,6 +18,7 @@ export default function TradeCardsLayout({children}) {
                         <Nav.Link href='/trade-cards/buy-cards' disabled={router.asPath === '/trade-cards/buy-cards'}>Buy cards</Nav.Link>
                         <Nav.Link href='/trade-cards/sell-cards' disabled={router.asPath === '/trade-cards/sell-cards'}>Sell cards</Nav.Link>
                         <Nav.Link href='/trade-cards/free-agents' disabled={router.asPath === '/trade-cards/free-agents'}>Free agents</Nav.Link>
+                        <Nav.Link href='/trade-cards/mint-nft' disabled={router.asPath === '/trade-cards/mint-nft'}>Mint NFT</Nav.Link>
                     </Nav>
                     <Navbar.Brand href='/'>
                         <img alt='Logo' src='/logo.png' width='40' className='d-inline-block align-top' />
