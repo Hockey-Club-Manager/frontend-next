@@ -1,6 +1,6 @@
 import TradeCardsLayout from "../../../components/TradeCardsLayout";
 import {useState} from "react";
-import {handleMint} from "../../state/actions";
+import {handleMint} from "../../../state/actions";
 import {isAccountTaken, networkId} from "../../../utils/near-utils";
 
 export default function MintNft() {

@@ -4,7 +4,7 @@ import {Near} from "near-api-js";
 
 export const {
     networkId,
-} = await getConfig();
+} = getConfig();
 
 export const isAccountTaken = async (accountId) => {
     const config = await getConfig();
