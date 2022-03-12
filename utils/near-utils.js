@@ -1,7 +1,10 @@
 import {getConfig} from "./near";
 import * as nearAPI from "near-api-js";
-import {keyStores, Near} from "near-api-js";
+import {Near} from "near-api-js";
 
+export const {
+    networkId,
+} = await getConfig();
 
 export const isAccountTaken = async (accountId) => {
     const config = await getConfig();

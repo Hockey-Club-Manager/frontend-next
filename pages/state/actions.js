@@ -1,5 +1,5 @@
 import {parseNearAmount} from "near-api-js/lib/utils/format";
-import {getNftContract, getObjects} from "./near";
+import {getNftContract, getObjects} from "../../utils/near";
 
 
 export const handleMint = async (royalties, media, validMedia, title, player) => {

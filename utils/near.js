@@ -47,7 +47,7 @@ export function getMarketContract(wallet) {
         wallet.account(),
         marketContractName,
         {
-            viewMethods: [],
+            viewMethods: ["get_sales_by_owner_id, get_sale, get_sales_by_nft_contract_id, storage_paid"],
             changeMethods: [],
         }
     );
@@ -58,7 +58,7 @@ export function getNftContract(wallet) {
         wallet.account(),
         nftContractName,
         {
-            viewMethods: [],
+            viewMethods: ["nft_tokens_for_owner", "nft_tokens_batch, nft_token, nft_tokens, nft_total_supply"],
             changeMethods: ["nft_mint"],
         }
     );
