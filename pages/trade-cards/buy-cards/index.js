@@ -2,7 +2,7 @@ import {Col, Row} from "react-bootstrap";
 import TradeCardsLayout from "../../../components/TradeCardsLayout";
 import NFTCard from "../../../components/NFTCard";
 import styled from "styled-components";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {formatNearAmount, getObjects, token2symbol} from "../../../utils/near";
 import {loadAllTokens, loadSales} from "../../../state/views";
 
@@ -31,38 +31,30 @@ function NFTCardCol({imgURL, year, position, name, number, role, stats, detailsL
 }
 
 export default function Index() {
+    const [isLoaded, setIsLoaded] = useState(false);
     const [market, setMarket] = useState();
     const [accountID, setAccountID] = useState();
 
-    function urii () {
+    function loadCards() {
+        loadSales().then(sales => {
+            loadAllTokens().then(r => {
+                setMarket(sales.concat(r.filter(({token_id}) => !sales.some(({token_id: t}) => t === token_id))));
+                setIsLoaded(true);
+            });
+        });
 
-    let sales;
-    loadSales().then(r => {
-        sales = r;
-        console.log(sales)
-        loadAllTokens().then(r => {
-            console.log('r: ', r);
-
-            //const {allTokens: _allTokens} = r;
-            //setMarket(sales.concat(_allTokens.filter(({token_id}) => !sales.some(({token_id: t}) => t === token_id))));
-
-            setMarket(sales.concat(r.filter(({token_id}) => !sales.some(({token_id: t}) => t === token_id))));
-        })
-    })
-
-    let wallet;
-    getObjects().then(r => {
-        const {wallet: _wallet} = r;
-        wallet = _wallet;
-        setAccountID(_wallet.accountId)
-    });
-
-    console.log(sales);
-
+        getObjects().then(r => {
+            const {wallet} = r;
+            setAccountID(wallet.accountId)
+        });
     }
+
+    useEffect(() => {
+        loadCards();
+    }, []);
+
     return <TradeCardsLayout>
-        <button onClick={()=>urii()}>uriy</button>
-        {
+        { isLoaded ?
             market?.map(({
                          metadata: {media, title, extra},
                          owner_id,
@@ -97,9 +89,8 @@ export default function Index() {
                                 cost={3}
                             />
                         </Row>
-
-
                 </div>)
+            : <h4>Loading...</h4>
         }
     </TradeCardsLayout>
 };
