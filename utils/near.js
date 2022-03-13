@@ -1,8 +1,11 @@
 import * as nearAPI from "near-api-js";
+import {parseNearAmount} from "near-api-js/lib/utils/format";
 
 export const gameContractName = "uriyyuriy.testnet";
 export const marketContractName = "market_hock.testnet";
 export const nftContractName = "nft_hock.testnet";
+
+const GAS = "200000000000000";
 
 export async function getConfig() {
     return {
@@ -47,8 +50,8 @@ export function getMarketContract(wallet) {
         wallet.account(),
         marketContractName,
         {
-            viewMethods: ["get_sales_by_owner_id, get_sale, get_sales_by_nft_contract_id, storage_paid"],
-            changeMethods: [],
+            viewMethods: ['get_sales_by_owner_id', 'get_sale', 'get_sales_by_nft_contract_id', 'storage_paid', 'storage_amount'],
+            changeMethods: ['update_price', 'storage_deposit', 'accept_offer', 'offer'],
         }
     );
 }
@@ -58,12 +61,48 @@ export function getNftContract(wallet) {
         wallet.account(),
         nftContractName,
         {
-            viewMethods: ["nft_tokens_for_owner", "nft_tokens_batch, nft_token, nft_tokens, nft_total_supply"],
-            changeMethods: ["nft_mint"],
+            viewMethods: ["nft_tokens_for_owner", "nft_tokens_batch", "nft_token", "nft_tokens", "nft_total_supply"],
+            changeMethods: ["nft_mint", "nft_approve"],
         }
     );
 }
 
+export const token2symbol = {
+    "near": "NEAR",
+    // "dai": "DAI",
+    // "usdc": "USDC",
+    // "usdt": "USDT",
+};
+
+const allTokens = Object.keys(token2symbol);
+
+export const getTokenOptions = (value, setter, accepted = allTokens) => (
+    <select value={value} onChange={(e) => setter(e.target.value)}>
+        {
+            accepted.map((value) => <option key={value} value={value}>{token2symbol[value]}</option>)
+        }
+    </select>);
+
+export const handleOffer = async (token_id, offerToken, offerPrice) => {
+    if (offerToken !== 'near') {
+        return alert('currently only accepting NEAR offers');
+    }
+    if (offerToken === 'near') {
+        let marketContract, marketWallet;
+        await getObjects().then(r => {
+            const {wallet: _wallet} = r;
+            marketWallet = _wallet;
+            marketContract = getMarketContract(_wallet);
+        });
+
+        await marketContract.offer({
+            nft_contract_id: nftContractName,
+            token_id,
+        }, GAS, parseNearAmount(offerPrice));
+    } else {
+        /// todo ft_transfer_call
+    }
+};
 
 const NEAR_NOMINATION = 1_000_000_000_000_000_000_000_000;
 
