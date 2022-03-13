@@ -54,7 +54,7 @@ export default function NFTCard({imgURL, year, position, name, number, role, sta
                 </Row>
                 <Card.Text className='text-white'>{role}</Card.Text>
                 <Row className="justify-content-center">
-                    {stats.map(stat =>
+                    {stats?.map(stat =>
                     <Col className="col-auto" key={nanoid()}>
                         <Card.Title className='text-white'>{stat}</Card.Title>
                     </Col>
