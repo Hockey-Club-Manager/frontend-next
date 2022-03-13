@@ -1,16 +1,10 @@
-import {Row, Col} from "react-bootstrap";
+import {Col, Row} from "react-bootstrap";
 import TradeCardsLayout from "../../../components/TradeCardsLayout";
 import NFTCard from "../../../components/NFTCard";
 import styled from "styled-components";
-import React, {useContext, useEffect} from "react";
-import {appStore} from "../../../state/app";
-import {
-    formatNearAmount,
-    getMarketContract,
-    getObjects,
-    token2symbol
-} from "../../../utils/near";
-import {getMarketStoragePaid, loadAllTokens, loadItems, loadSales} from "../../../state/views";
+import React, {useState} from "react";
+import {formatNearAmount, getObjects, token2symbol} from "../../../utils/near";
+import {loadAllTokens, loadSales} from "../../../state/views";
 
 const CardCol = styled(Col)`
   width: 300px;
@@ -37,52 +31,46 @@ function NFTCardCol({imgURL, year, position, name, number, role, stats, detailsL
 }
 
 export default function Index() {
-    let sales, allTokens;
+    const [market, setMarket] = useState();
+    const [accountID, setAccountID] = useState();
+
+    function urii () {
+
+    let sales;
     loadSales().then(r => {
         sales = r;
         console.log(sales)
-    })
-    console.log(sales)
+        loadAllTokens().then(r => {
+            console.log('r: ', r);
 
-    loadAllTokens().then(r => {
-        console.log(r);
+            //const {allTokens: _allTokens} = r;
+            //setMarket(sales.concat(_allTokens.filter(({token_id}) => !sales.some(({token_id: t}) => t === token_id))));
 
-        const {allTokens: _allTokens} = r;
-        allTokens = _allTokens;
+            setMarket(sales.concat(r.filter(({token_id}) => !sales.some(({token_id: t}) => t === token_id))));
+        })
     })
 
     let wallet;
     getObjects().then(r => {
         const {wallet: _wallet} = r;
         wallet = _wallet;
+        setAccountID(_wallet.accountId)
     });
-
-    let accountId = '';
-    if (wallet) accountId = wallet.accountId;
 
     console.log(sales);
 
-    const currentSales = sales.filter(({
-                                           owner_id,
-                                           sale_conditions
-                                       }) => wallet?.accountId === owner_id && Object.keys(sale_conditions || {}).length > 0)
-
-
-    let market = sales;
-
-    market = market.concat(allTokens.filter(({token_id}) => !market.some(({token_id: t}) => t === token_id)));
-
-
+    }
     return <TradeCardsLayout>
+        <button onClick={()=>urii()}>uriy</button>
         {
-            market.map(({
+            market?.map(({
                          metadata: {media, title, extra},
                          owner_id,
                          token_id,
                          sale_conditions = {},
                      }) =>
                 <div key={token_id} className="item">
-                    <p>{accountId !== owner_id ? `Owned by ${owner_id}` : `You own this!`}</p>
+                    <p>{accountID !== owner_id ? `Owned by ${owner_id}` : `You own this!`}</p>
 
                     {
                         Object.keys(sale_conditions).length > 0 && <>
@@ -100,11 +88,11 @@ export default function Index() {
                             <NFTCardCol
                                 imgURL={media}
                                 year={2022}
-                                position={JSON.parse(extra).position}
+                                position={extra && JSON.parse(extra).position}
                                 name={title}
-                                number={JSON.parse(extra).number}
-                                role={JSON.parse(extra).role}
-                                stats={JSON.parse(extra).stats}
+                                number={extra && JSON.parse(extra).number}
+                                role={extra && JSON.parse(extra).role}
+                                stats={extra && JSON.parse(extra).stats}
                                 detailsLink="/trade-cards/buy-cards/1"
                                 cost={3}
                             />
