@@ -1,8 +1,8 @@
 import {Row, Col} from "react-bootstrap";
 import TradeCardsLayout from "../../../components/TradeCardsLayout";
 import NFTCard from "../../../components/NFTCard";
-import React, {useEffect, useState} from "react";
-import {getMarketStoragePaid, loadAllTokens, loadSales, loadUserTokens} from "../../../state/views";
+import React, {useState} from "react";
+import {getMarketStoragePaid, loadUserTokens} from "../../../state/views";
 import {formatNearAmount, getObjects, getTokenOptions, token2symbol} from "../../../utils/near";
 import {parseNearAmount} from "near-api-js/lib/utils/format";
 import {handleAcceptOffer, handleRegisterStorage, handleSaleUpdate} from "../../../state/actions";
@@ -32,7 +32,7 @@ function NFTCardCol({imgURL, year, position, name, number, role, stats, detailsL
     </CardCol>
 }
 
-export default function SellCards(ctx) {
+export default function SellCards() {
     const [tokens, setTokens] = useState([]);
     const [marketStoragePaid, setMarketStoragePaid] = useState();
     const [accountID, setAccountID] = useState();

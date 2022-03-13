@@ -49,27 +49,18 @@ export async function loadUserTokens() {
     return tokens
 }
 
-export const loadAllTokens = async () => {
-    let nftContract, nftWallet;
-
-    await getObjects().then(r => {
-        const {wallet: _wallet} = r;
-        nftWallet = _wallet;
-        nftContract = getNftContract(_wallet);
-    });
+export const loadTokens = async (fromIndex = 50, limit = 100) => {
+    const {wallet} = await getObjects();
+    const nftContract = getNftContract(wallet);
 
     // all tokens
     // need to use NFT helper for deployed
-    let allTokens = [];
-
-    allTokens = await nftContract.nft_tokens({
-        from_index: '50',
-        limit: 100
+    const allTokens = await nftContract.nft_tokens({
+        from_index: fromIndex.toString(),
+        limit: limit
     });
 
-    allTokens = allTokens.filter(({ owner_id }) => !BAD_OWNER_ID.includes(owner_id));
-
-    return allTokens
+    return allTokens.filter(({owner_id}) => !BAD_OWNER_ID.includes(owner_id));
 }
 
 export const loadSales = async () => {
@@ -91,7 +82,7 @@ export const loadSales = async () => {
 
     /// all sales
     // need to use NFT helper for deployed contract
-    let sales = [];
+    let sales;
     sales = await marketContract.get_sales_by_nft_contract_id({
         nft_contract_id: nftContractName,
         from_index: '0',

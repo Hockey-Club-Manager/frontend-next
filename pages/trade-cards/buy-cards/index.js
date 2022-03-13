@@ -4,7 +4,7 @@ import NFTCard from "../../../components/NFTCard";
 import styled from "styled-components";
 import React, {useEffect, useState} from "react";
 import {getObjects} from "../../../utils/near";
-import {loadAllTokens, loadSales} from "../../../state/views";
+import {loadTokens, loadSales} from "../../../state/views";
 import {utils} from "near-api-js";
 
 const CardCol = styled(Col)`
@@ -35,10 +35,11 @@ export default function Index() {
     const [isLoaded, setIsLoaded] = useState(false);
     const [market, setMarket] = useState();
     const [accountID, setAccountID] = useState();
+    const fromIndex = 50;
 
     function loadCards() {
         loadSales().then(sales => {
-            loadAllTokens().then(r => {
+            loadTokens(fromIndex).then(r => {
                 setMarket(sales.concat(r.filter(({token_id}) => !sales.some(({token_id: t}) => t === token_id))));
                 setIsLoaded(true);
             });
@@ -61,7 +62,7 @@ export default function Index() {
                          owner_id,
                          token_id,
                          sale_conditions,
-                     }) =>
+                     }, index) =>
                 <div key={token_id} className="item">
                     <p>{accountID !== owner_id ? `Owned by ${owner_id}` : `You own this!`}</p>
                     <Row className='mx-4 my-4 gx-4 gy-4'>
@@ -73,7 +74,7 @@ export default function Index() {
                             number={extra && JSON.parse(extra).number}
                             role={extra && JSON.parse(extra).role}
                             stats={extra && JSON.parse(extra).stats}
-                            detailsLink="/trade-cards/buy-cards/1"
+                            detailsLink={`/trade-cards/buy-cards/${fromIndex + index}`}
                             cost={utils.format.formatNearAmount(sale_conditions?.near)}
                         />
                     </Row>
