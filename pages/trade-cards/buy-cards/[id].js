@@ -5,8 +5,11 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faArrowLeft} from "@fortawesome/free-solid-svg-icons";
 import {SModal} from "../../../components/settings";
 import {Modal} from "react-bootstrap";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import InfoModal from "../../../components/InfoModal";
+import {useRouter} from "next/router";
+import {loadTokens} from "../../../state/views";
+import {getObjects} from "../../../utils/near";
 
 const CardInfo = styled.div`
   background-color: aquamarine;
@@ -49,6 +52,39 @@ export default function BuyCardView() {
     const handleBuyCardConfirmModalOpen = () => setShowBuyCardConfirmModal(true);
     const handleBuyCardConfirmModalClose = () => setShowBuyCardConfirmModal(false);
 
+    const router = useRouter();
+    const id = router.query.id;
+
+    const [isLoaded, setIsLoaded] = useState(false);
+    const [nft, setNft] = useState();
+    const [nftExtra, setNftExtra] = useState();
+    const [accountID, setAccountID] = useState();
+
+    function loadCard(id) {
+        loadTokens(id, 1).then(r => {
+            setNft(r[0]);
+            setIsLoaded(true);
+        });
+
+        getObjects().then(r => {
+            const {wallet} = r;
+            setAccountID(wallet.account().accountId)
+            console.log(wallet.account().accountId);
+        });
+    }
+
+    const getNumsInString = s => s.match(/^\d+|\d+\b|\d+(?=\w)/g);
+
+    useEffect(() => {
+        if (id) {
+            loadCard(id);
+        } else loadCard(getNumsInString(window.location.pathname)[0]);
+    }, []);
+
+    useEffect(() => {
+        nft?.metadata?.extra && setNftExtra(JSON.parse(nft.metadata.extra));
+    },[nft]);
+
     return <>
         <Navbar bg='dark' variant='dark'>
             <Container>
@@ -60,24 +96,25 @@ export default function BuyCardView() {
                 </Navbar.Brand>
             </Container>
         </Navbar>
+        {isLoaded ?
     <Container>
         <Row className='my-5'>
             <Col className='col-12 col-xs-12 col-sm-12 col-md-5 mb-3'>
                 <NFTCard
-                    imgURL='/nft.jpg'
+                    imgURL={nft?.metadata?.media}
                     year={2022}
-                    position='LW'
+                    position={nftExtra?.position}
                     name='Player #12'
-                    number={99}
+                    number={nftExtra?.number}
                     role='Best player ever'
-                    stats={[99,88,77,66,55]}
+                    stats={nftExtra && JSON.parse(nftExtra?.stats)}
                 />
             </Col>
             <Col className='col-12 col-xs-12 col-sm-12 col-md-7'>
                         <CardInfo>
-                            <h1>Card info</h1>
+                            <h2>{nft?.metadata?.title}</h2>
                             <h2>Other card info</h2>
-                            <h3>Even more info</h3>
+                            <h5>{accountID !== nft?.owner_id ? `Owner: ${nft?.owner_id}` : 'You are the owner' }</h5>
                         </CardInfo>
                 <Row className='justify-content-center mt-4'>
                     <Col className='col-auto'>
@@ -93,8 +130,6 @@ export default function BuyCardView() {
                 handleBuyCardOfferModalClose();
                 handleBuyCardConfirmModalOpen();
             }}
-            content={[
-            ]}
         />
         <InfoModal
             show={showBuyCardConfirmModal}
@@ -106,5 +141,7 @@ export default function BuyCardView() {
             ]}
             />
     </Container>
+            : <h4>Loading...</h4>
+        }
     </>
 }

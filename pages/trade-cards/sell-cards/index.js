@@ -78,7 +78,7 @@ export default function SellCards() {
                         name={title}
                         number={extra && JSON.parse(extra).number}
                         role={extra && JSON.parse(extra).role}
-                        stats={extra && JSON.parse(extra).stats}
+                        stats={extra && JSON.parse(JSON.parse(extra).stats)}
                         detailsLink="/trade-cards/buy-cards/1"
                         cost={3}
                     />

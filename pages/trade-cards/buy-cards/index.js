@@ -3,7 +3,6 @@ import TradeCardsLayout from "../../../components/TradeCardsLayout";
 import NFTCard from "../../../components/NFTCard";
 import styled from "styled-components";
 import React, {useEffect, useState} from "react";
-import {getObjects} from "../../../utils/near";
 import {loadTokens, loadSales} from "../../../state/views";
 import {utils} from "near-api-js";
 
@@ -34,8 +33,7 @@ function NFTCardCol({imgURL, year, position, name, number, role, stats, detailsL
 export default function Index() {
     const [isLoaded, setIsLoaded] = useState(false);
     const [market, setMarket] = useState();
-    const [accountID, setAccountID] = useState();
-    const fromIndex = 50;
+    const fromIndex = 0;
 
     function loadCards() {
         loadSales().then(sales => {
@@ -43,11 +41,6 @@ export default function Index() {
                 setMarket(sales.concat(r.filter(({token_id}) => !sales.some(({token_id: t}) => t === token_id))));
                 setIsLoaded(true);
             });
-        });
-
-        getObjects().then(r => {
-            const {wallet} = r;
-            setAccountID(wallet.accountId)
         });
     }
 
@@ -64,7 +57,6 @@ export default function Index() {
                          sale_conditions,
                      }, index) =>
                 <div key={token_id} className="item">
-                    <p>{accountID !== owner_id ? `Owned by ${owner_id}` : `You own this!`}</p>
                     <Row className='mx-4 my-4 gx-4 gy-4'>
                         <NFTCardCol
                             imgURL={media}
@@ -73,7 +65,7 @@ export default function Index() {
                             name={title}
                             number={extra && JSON.parse(extra).number}
                             role={extra && JSON.parse(extra).role}
-                            stats={extra && JSON.parse(extra).stats}
+                            stats={extra && JSON.parse(JSON.parse(extra).stats)}
                             detailsLink={`/trade-cards/buy-cards/${fromIndex + index}`}
                             cost={utils.format.formatNearAmount(sale_conditions?.near)}
                         />
