@@ -14,7 +14,7 @@ const headers = new Headers({
     'max-age': '300'
 });
 
-export const getMarketStoragePaid = () => async ({ update }) => {
+export const getMarketStoragePaid = () => async ()  => {
     let marketContract, marketWallet;
 
     getObjects().then(r => {
@@ -23,9 +23,7 @@ export const getMarketStoragePaid = () => async ({ update }) => {
         marketContract = getMarketContract(_wallet);
     });
 
-    update('views', {
-        marketStoragePaid: await marketContract.storage_paid({ account_id: marketWallet.account() })
-    })
+    return await marketContract.storage_paid({ account_id: marketWallet.account() })
 }
 
 export const loadUserTokens = () => async () => {
