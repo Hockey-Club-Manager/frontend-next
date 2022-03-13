@@ -3,8 +3,9 @@ import TradeCardsLayout from "../../../components/TradeCardsLayout";
 import NFTCard from "../../../components/NFTCard";
 import styled from "styled-components";
 import React, {useEffect, useState} from "react";
-import {formatNearAmount, getObjects, token2symbol} from "../../../utils/near";
+import {getObjects} from "../../../utils/near";
 import {loadAllTokens, loadSales} from "../../../state/views";
+import {utils} from "near-api-js";
 
 const CardCol = styled(Col)`
   width: 300px;
@@ -59,36 +60,23 @@ export default function Index() {
                          metadata: {media, title, extra},
                          owner_id,
                          token_id,
-                         sale_conditions = {},
+                         sale_conditions,
                      }) =>
                 <div key={token_id} className="item">
                     <p>{accountID !== owner_id ? `Owned by ${owner_id}` : `You own this!`}</p>
-
-                    {
-                        Object.keys(sale_conditions).length > 0 && <>
-                            <h4>Sale Conditions</h4>
-                            {
-                                Object.entries(sale_conditions).map(([ft_token_id, price]) => <div className="margin-bottom"
-                                                                                                   key={ft_token_id}>
-                                    {price === '0' ? 'open' : formatNearAmount(price, 4)} - {token2symbol[ft_token_id]}
-                                </div>)
-                            }
-                        </>
-                    }
-
-                        <Row className='mx-4 my-4 gx-4 gy-4'>
-                            <NFTCardCol
-                                imgURL={media}
-                                year={2022}
-                                position={extra && JSON.parse(extra).position}
-                                name={title}
-                                number={extra && JSON.parse(extra).number}
-                                role={extra && JSON.parse(extra).role}
-                                stats={extra && JSON.parse(extra).stats}
-                                detailsLink="/trade-cards/buy-cards/1"
-                                cost={3}
-                            />
-                        </Row>
+                    <Row className='mx-4 my-4 gx-4 gy-4'>
+                        <NFTCardCol
+                            imgURL={media}
+                            year={2022}
+                            position={extra && JSON.parse(extra).position}
+                            name={title}
+                            number={extra && JSON.parse(extra).number}
+                            role={extra && JSON.parse(extra).role}
+                            stats={extra && JSON.parse(extra).stats}
+                            detailsLink="/trade-cards/buy-cards/1"
+                            cost={utils.format.formatNearAmount(sale_conditions?.near)}
+                        />
+                    </Row>
                 </div>)
             : <h4>Loading...</h4>
         }
