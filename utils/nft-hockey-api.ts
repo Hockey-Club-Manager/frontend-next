@@ -16,7 +16,7 @@ export enum PlayerPosition {
 }
 
 export enum PlayerRole {
-    // Winger
+    // Forward
     Passer = "Passer",
     Shooter = "Shooter",
     TryHarder = "TryHarder",

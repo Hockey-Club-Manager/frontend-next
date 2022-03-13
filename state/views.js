@@ -1,10 +1,4 @@
-import {
-    getMarketContract,
-    getNftContract,
-    getObjects,
-    marketContractName,
-    nftContractName
-} from "../utils/near";
+import {getMarketContract, getNftContract, getObjects, marketContractName, nftContractName} from "../utils/near";
 
 const BAD_OWNER_ID = [];
 // api-helper config
@@ -14,49 +8,30 @@ const headers = new Headers({
     'max-age': '300'
 });
 
-export const getMarketStoragePaid = () => async ()  => {
-    let marketContract, marketWallet;
-
-    getObjects().then(r => {
-        const {wallet: _wallet} = r;
-        marketWallet = _wallet;
-        marketContract = getMarketContract(_wallet);
-    });
-
-    return await marketContract.storage_paid({ account_id: marketWallet.account() })
+export async function getMarketStoragePaid() {
+    const {wallet} = await getObjects();
+    const marketContract = getMarketContract(wallet);
+    return marketContract.storage_paid({account_id: wallet.account().accountId});
 }
 
-export const loadUserTokens = () => async () => {
-    let nftContract, nftWallet;
+export async function loadUserTokens() {
 
-    await getObjects().then(r => {
-        const {wallet: _wallet} = r;
-        nftWallet = _wallet;
-        nftContract = getNftContract(_wallet);
-    });
+    const {wallet}  = await getObjects();
+    const account = wallet.account();
+    const nftContract = getNftContract(wallet);
+    const marketContract = getMarketContract(wallet);
 
-    let marketContract, marketWallet;
-
-    await getObjects().then(r => {
-        const {wallet: _wallet} = r;
-        marketWallet = _wallet;
-        marketContract = getMarketContract(_wallet);
-    });
-
-    /// user tokens
+    // user tokens
     let tokens = []
 
-    let nftAccount = nftWallet.account();
-    let marketAccount = marketWallet.account();
-
-    if (nftAccount && marketAccount) {
+    if (account) {
         tokens = await nftContract.nft_tokens_for_owner({
-            account_id: nftAccount.accountId,
+            account_id: account.accountId,
             from_index: '0',
             limit: 50
         });
         const sales = await marketContract.get_sales_by_owner_id({
-            account_id: marketAccount.accountId,
+            account_id: account.accountId,
             from_index: '0',
             limit: 50
         });
@@ -71,8 +46,7 @@ export const loadUserTokens = () => async () => {
             tokens[i] = Object.assign(tokens[i], sale || {});
         }
     }
-
-    return {tokens}
+    return tokens
 }
 
 export const loadAllTokens = async () => {
