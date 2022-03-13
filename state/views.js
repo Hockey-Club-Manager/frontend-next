@@ -91,8 +91,8 @@ export const loadAllTokens = async () => {
     let allTokens = [];
 
     allTokens = await nftContract.nft_tokens({
-        from_index: '0',
-        limit: 50
+        from_index: '50',
+        limit: 100
     });
 
     allTokens = allTokens.filter(({ owner_id }) => !BAD_OWNER_ID.includes(owner_id));
