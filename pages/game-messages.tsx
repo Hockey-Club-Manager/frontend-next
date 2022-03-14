@@ -110,7 +110,7 @@ export default function Game() {
     const [autoReload, setAutoReload] = useState(false);
     const [tableIntervalID, setTableIntervalID] = useState(null);
     const [event, setEvent] = useState<Event>(null);
-    const [eventMessagesBuffer, setEventMessagesBuffer] = useState([]);
+    const [eventMessagesBuffer, setEventMessagesBuffer] = useState<DisplayableAction[]>([]);
 
     function getOpponent(event: Event): FieldPlayer {
         if(event.playerWithPuck.userID === myPlayerNumber) {
@@ -120,9 +120,33 @@ export default function Game() {
         }
     }
 
+    enum DisplayableActionVariant {MessageAction, NonMessageAction}
+    interface MessageActionBody {
+        playerWithPuck: number,
+        action: string,
+        opponent: number,
+        side: PlayerSide,
+        username: string,
+    }
+    interface NonMessageBody {
+        action: string,
+    }
+    interface DisplayableAction {
+       actionVariant: DisplayableActionVariant,
+       actionBody: MessageActionBody | NonMessageBody,
+    }
+
+    function showNonMessageAction(action) {
+        console.log(action);
+    }
+
     const GAS_MOVE = 50_000_000_000_000;
-    useEffect(()=>{
-        if (!event || nonMessageActions.includes(event.action)) return;
+    useEffect(() => {
+        if (!event) return;
+        if (nonMessageActions.includes(event.action)) {
+            showNonMessageAction(event.action);
+            return;
+        }
         const side: PlayerSide = event.playerWithPuck.userID === 1 ? 'left' : 'right';
 
         let username;
@@ -135,20 +159,21 @@ export default function Game() {
                 username = players[0];
             }
         }
-        const eventMessage = {
+        const eventMessageBody: MessageActionBody = {
             playerWithPuck: event.playerWithPuck.number,
             action: event.action,
             opponent: getOpponent(event).number,
             side: side,
             username: username,
         };
+
+        const eventMessage: DisplayableAction = {
+            actionVariant: DisplayableActionVariant.MessageAction,
+            actionBody: eventMessageBody,
+        }
         if (eventMessagesBuffer.length === 7) {
             setEventMessagesBuffer(b => [...b.slice(1), eventMessage]);
-        // } else if (eventMessagesBuffer < 7) {
-        //     setEventMessagesBuffer(b => [...b, event])
-        // } else alert('messages buffer > 7');
         } else setEventMessagesBuffer(b => [...b, eventMessage])
-
     }, [event]);
 
     const localReceivedEventsKey = 'receivedEvents';
@@ -259,14 +284,19 @@ export default function Game() {
             <Col className='text-center' xs={5}>
                 <h1>Period 2</h1>
                 <Field>
-                    {eventMessagesBuffer?.map(e => <Message
-                        key={nanoid()}
-                        playerWithThePuck={e.playerWithPuck}
-                        action={e.action}
-                        opponent={e.opponent}
-                        side={e.side}
-                        username={e.username}
-                    />
+                    {eventMessagesBuffer?.map(e => {
+                        if (e.actionVariant === DisplayableActionVariant.MessageAction) {
+                            const body = e.actionBody; // TODO type MessageBody
+                            return <Message
+                                key={nanoid()}
+                                playerWithThePuck={body.playerWithPuck}
+                                action={body.action}
+                                opponent={body.opponent}
+                                side={body.side}
+                                username={body.username}
+                            />
+                        }
+                    }
                     )}
                 </Field>
                 <Row className='mt-4 justify-content-between'>
