@@ -65,7 +65,7 @@ const Timer = styled.div`
 const MessageDiv = styled.div`
   background-color: #ededed;
   width: 200px;
-  
+
   &.left {
     border: 2px solid #5161ee;
     border-radius: 20px 20px 20px 0;
@@ -84,6 +84,12 @@ const MessageDiv = styled.div`
   }
 `
 
+const NonMessageDiv = styled.div`
+  background-color: #322e2ebd;
+  width: 200px;
+  border-radius: 20px;
+`
+
 function Message({playerWithThePuck, action, opponent, username, side}) {
     return <div className={`d-flex justify-content-${side === 'left' ? 'start' : 'end'} my-2`}>
         <MessageDiv className={side}>
@@ -94,6 +100,13 @@ function Message({playerWithThePuck, action, opponent, username, side}) {
             </Row>
             <h5>{playerWithThePuck} {action} {opponent}</h5>
         </MessageDiv>
+    </div>
+}
+function NonMessage({action}) {
+    return <div className={`d-flex justify-content-center my-2`}>
+        <NonMessageDiv>
+            <h5 className='text-white'>{action}</h5>
+        </NonMessageDiv>
     </div>
 }
 
@@ -110,7 +123,7 @@ export default function Game() {
     const [autoReload, setAutoReload] = useState(false);
     const [tableIntervalID, setTableIntervalID] = useState(null);
     const [event, setEvent] = useState<Event>(null);
-    const [eventMessagesBuffer, setEventMessagesBuffer] = useState([]);
+    const [eventMessagesBuffer, setEventMessagesBuffer] = useState<DisplayableAction[]>([]);
 
     function getOpponent(event: Event): FieldPlayer {
         if(event.playerWithPuck.userID === myPlayerNumber) {
@@ -120,35 +133,62 @@ export default function Game() {
         }
     }
 
-    const GAS_MOVE = 50_000_000_000_000;
-    useEffect(()=>{
-        if (!event || nonMessageActions.includes(event.action)) return;
-        const side: PlayerSide = event.playerWithPuck.userID === 1 ? 'left' : 'right';
+    enum DisplayableActionType {MessageAction, NonMessageAction}
+    interface MessageAction {
+        actionType: DisplayableActionType.MessageAction,
+        playerWithPuck: number,
+        action: string,
+        opponent: number,
+        side: PlayerSide,
+        username: string,
+    }
+    interface NonMessageAction {
+        actionType: DisplayableActionType.NonMessageAction
+        action: string,
+    }
+    type DisplayableAction = MessageAction | NonMessageAction;
 
-        let username;
-        if (event.playerWithPuck.userID === myPlayerNumber) {
-            username = players[myPlayerNumber - 1];
-        } else {
-            if (myPlayerNumber === 1) {
-                username = players[1];
-            } else {
-                username = players[0];
-            }
-        }
-        const eventMessage = {
-            playerWithPuck: event.playerWithPuck.number,
-            action: event.action,
-            opponent: getOpponent(event).number,
-            side: side,
-            username: username,
-        };
+    const GAS_MOVE = 50_000_000_000_000;
+
+    function pushEventMessage(eventMessage: DisplayableAction): void {
         if (eventMessagesBuffer.length === 7) {
             setEventMessagesBuffer(b => [...b.slice(1), eventMessage]);
-        // } else if (eventMessagesBuffer < 7) {
-        //     setEventMessagesBuffer(b => [...b, event])
-        // } else alert('messages buffer > 7');
         } else setEventMessagesBuffer(b => [...b, eventMessage])
+    }
 
+    useEffect(() => {
+        if (!event) return;
+        if (nonMessageActions.includes(event.action)) {
+            const eventMessage: NonMessageAction = {
+                actionType: DisplayableActionType.NonMessageAction,
+                action: event.action,
+            }
+
+            pushEventMessage(eventMessage);
+        } else {
+            const side: PlayerSide = event.playerWithPuck.userID === 1 ? 'left' : 'right';
+
+            let username;
+            if (event.playerWithPuck.userID === myPlayerNumber) {
+                username = players[myPlayerNumber - 1];
+            } else {
+                if (myPlayerNumber === 1) {
+                    username = players[1];
+                } else {
+                    username = players[0];
+                }
+            }
+            const eventMessage: MessageAction = {
+                actionType: DisplayableActionType.MessageAction,
+                playerWithPuck: event.playerWithPuck.number,
+                action: event.action,
+                opponent: getOpponent(event).number,
+                side: side,
+                username: username,
+            };
+
+            pushEventMessage(eventMessage);
+        }
     }, [event]);
 
     const localReceivedEventsKey = 'receivedEvents';
@@ -259,14 +299,19 @@ export default function Game() {
             <Col className='text-center' xs={5}>
                 <h1>Period 2</h1>
                 <Field>
-                    {eventMessagesBuffer?.map(e => <Message
-                        key={nanoid()}
-                        playerWithThePuck={e.playerWithPuck}
-                        action={e.action}
-                        opponent={e.opponent}
-                        side={e.side}
-                        username={e.username}
-                    />
+                    {eventMessagesBuffer?.map(e => {
+                        if (e.actionType === DisplayableActionType.MessageAction)
+                            return <Message
+                                key={nanoid()}
+                                playerWithThePuck={e.playerWithPuck}
+                                action={e.action}
+                                opponent={e.opponent}
+                                side={e.side}
+                                username={e.username}
+                            />
+                        else if (e.actionType === DisplayableActionType.NonMessageAction)
+                            return <NonMessage action={e.action} />
+                    }
                     )}
                 </Field>
                 <Row className='mt-4 justify-content-between'>
