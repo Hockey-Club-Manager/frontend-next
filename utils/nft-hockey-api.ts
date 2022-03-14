@@ -92,23 +92,23 @@ export enum IceTimePriority {
 
 export class Five {
     constructor(
-        public fieldPlayers: Map<number, FieldPlayer>,
+        public fieldPlayers: FieldPlayer[],
         public number: Fives,
         public iceTimePriority: IceTimePriority,
         public timeField: number,
     ) {}
 
     getPlayerByPosition(position: PlayerPosition): FieldPlayer {
-        for (let playerKey of Object.keys(this.fieldPlayers)) {
-            if (this.fieldPlayers[playerKey].position === position) return this.fieldPlayers[playerKey];
+        for (let player of this.fieldPlayers) {
+            if (player.position === position) return player;
         }
     }
 
     static fromJSON(json) {
-        const fieldPlayers = new Map<number, FieldPlayer>();
+        const fieldPlayers: FieldPlayer[] = [];
 
         for (let playerNum in json.field_players) {
-            fieldPlayers[playerNum] = FieldPlayer.fromJSON(json.field_players[playerNum]);
+            fieldPlayers.push(FieldPlayer.fromJSON(json.field_players[playerNum]));
         }
 
         return new Five(

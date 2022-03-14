@@ -259,9 +259,7 @@ export default function Game() {
             <Col className='text-center' xs={5}>
                 <h1>Period 2</h1>
                 <Field>
-                    {eventMessagesBuffer?.map(e =>
-                    {
-                    return <Message
+                    {eventMessagesBuffer?.map(e => <Message
                         key={nanoid()}
                         playerWithThePuck={e.playerWithPuck}
                         action={e.action}
@@ -269,7 +267,6 @@ export default function Game() {
                         side={e.side}
                         username={e.username}
                     />
-                    }
                     )}
                 </Field>
                 <Row className='mt-4 justify-content-between'>
