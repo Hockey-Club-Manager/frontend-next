@@ -14,6 +14,19 @@ export async function getMarketStoragePaid() {
     return marketContract.storage_paid({account_id: wallet.account().accountId});
 }
 
+export async function loadToken(token_id) {
+    const {wallet}  = await getObjects();
+    const nftContract = getNftContract(wallet);
+    const marketContract = getMarketContract(wallet);
+
+    let token = await nftContract.nft_token({token_id});
+    let sale = await marketContract.get_sale({ nft_contract_token: marketContractName + ":" + token_id }).catch(() => { });
+
+    token = Object.assign(token, sale || {});
+
+    return token;
+}
+
 export async function loadUserTokens() {
 
     const {wallet}  = await getObjects();
@@ -30,6 +43,7 @@ export async function loadUserTokens() {
             from_index: '0',
             limit: 50
         });
+
         const sales = await marketContract.get_sales_by_owner_id({
             account_id: account.accountId,
             from_index: '0',
