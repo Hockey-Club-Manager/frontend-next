@@ -98,6 +98,12 @@ export class Five {
         public timeField: number,
     ) {}
 
+    getPlayerByPosition(position: PlayerPosition): FieldPlayer {
+        for (let playerKey of Object.keys(this.fieldPlayers)) {
+            if (this.fieldPlayers[playerKey].position === position) return this.fieldPlayers[playerKey];
+        }
+    }
+
     static fromJSON(json) {
         const fieldPlayers = new Map<number, FieldPlayer>();
 

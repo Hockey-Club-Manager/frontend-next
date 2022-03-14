@@ -15,7 +15,6 @@ import {
     PlayerPosition,
     getOpponentPosition
 } from "../utils/nft-hockey-api";
-import {exec} from "child_process";
 
 const Field = styled.div`
   background-color: #ffffff;
@@ -113,17 +112,11 @@ export default function Game() {
     const [event, setEvent] = useState<Event>(null);
     const [eventMessagesBuffer, setEventMessagesBuffer] = useState([]);
 
-    function getFivePlayerByPosition(five: Five, position: PlayerPosition): FieldPlayer {
-        for (let playerKey of Object.keys(five.fieldPlayers)) {
-            if (five.fieldPlayers[playerKey].position === position) return five.fieldPlayers[playerKey];
-        }
-    }
-
     function getOpponent(event: Event): FieldPlayer {
         if(event.playerWithPuck.userID === myPlayerNumber) {
-            return getFivePlayerByPosition(event.opponentTeam.five, getOpponentPosition(event.playerWithPuck.position));
+            return event.opponentTeam.five.getPlayerByPosition(getOpponentPosition(event.playerWithPuck.position));
         } else {
-            return getFivePlayerByPosition(event.myTeam.five, getOpponentPosition(event.playerWithPuck.position));
+            return event.myTeam.five.getPlayerByPosition(getOpponentPosition(event.playerWithPuck.position));
         }
     }
 
