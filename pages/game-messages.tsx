@@ -221,7 +221,7 @@ export default function Game() {
         if (shouldUpdate.current) {
             shouldUpdate.current = false;
             if (typeof myGameID === "number") {
-                contract.generate_event({number_of_rendered_events: getLocalReceivedEvents(), game_id: myGameID }, GAS_MOVE)
+                contract.generate_event({number_of_rendered_events: 0, game_id: myGameID }, GAS_MOVE)
                     .then(e =>  {
                         console.log('generate event: ', e)
                         shouldUpdate.current = true;

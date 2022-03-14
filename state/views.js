@@ -14,6 +14,19 @@ export async function getMarketStoragePaid() {
     return marketContract.storage_paid({account_id: wallet.account().accountId});
 }
 
+export async function loadToken(token_id) {
+    const {wallet}  = await getObjects();
+    const nftContract = getNftContract(wallet);
+    const marketContract = getMarketContract(wallet);
+
+    let token = await nftContract.nft_token({token_id});
+    let sale = await marketContract.get_sale({ nft_contract_token: marketContractName + ":" + token_id }).catch(() => { });
+
+    token = Object.assign(token, sale || {});
+
+    return token;
+}
+
 export async function loadUserTokens() {
 
     const {wallet}  = await getObjects();
@@ -30,6 +43,7 @@ export async function loadUserTokens() {
             from_index: '0',
             limit: 50
         });
+
         const sales = await marketContract.get_sales_by_owner_id({
             account_id: account.accountId,
             from_index: '0',
@@ -49,7 +63,7 @@ export async function loadUserTokens() {
     return tokens
 }
 
-export const loadTokens = async (fromIndex = 50, limit = 100) => {
+export const loadTokens = async (fromIndex = 0, limit = 50) => {
     const {wallet} = await getObjects();
     const nftContract = getNftContract(wallet);
 
@@ -63,7 +77,7 @@ export const loadTokens = async (fromIndex = 50, limit = 100) => {
     return allTokens.filter(({owner_id}) => !BAD_OWNER_ID.includes(owner_id));
 }
 
-export const loadSales = async () => {
+export const loadSales = async (fromIndex = 0, limit = 50) => {
     let nftContract, nftWallet;
 
     await getObjects().then(r => {
@@ -85,8 +99,8 @@ export const loadSales = async () => {
     let sales;
     sales = await marketContract.get_sales_by_nft_contract_id({
         nft_contract_id: nftContractName,
-        from_index: '0',
-        limit: 50
+        from_index: fromIndex.toString(),
+        limit: limit
     });
 
     const saleTokens = await nftContract.nft_tokens_batch({

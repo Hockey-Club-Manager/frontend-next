@@ -68,8 +68,7 @@ export default function BuyCardView() {
 
         getObjects().then(r => {
             const {wallet} = r;
-            setAccountID(wallet.account().accountId)
-            console.log(wallet.account().accountId);
+            setAccountID(wallet.account().accountId);
         });
     }
 
@@ -104,9 +103,9 @@ export default function BuyCardView() {
                     imgURL={nft?.metadata?.media}
                     year={2022}
                     position={nftExtra?.position}
-                    name='Player #12'
+                    name={nft?.metadata?.title}
                     number={nftExtra?.number}
-                    role='Best player ever'
+                    role={nftExtra?.role}
                     stats={nftExtra && JSON.parse(nftExtra?.stats)}
                 />
             </Col>
