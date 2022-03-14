@@ -5,7 +5,17 @@ import {useRouter} from "next/router";
 import {useEffect, useRef, useState} from "react";
 import {getGameContract, getObjects} from "../utils/near";
 import {nanoid} from "nanoid";
-import {Event, nonMessageActions, PlayerSide, UserID} from "../utils/nft-hockey-api";
+import {
+    Event,
+    FieldPlayer,
+    nonMessageActions,
+    PlayerSide,
+    UserID,
+    Five,
+    PlayerPosition,
+    getOpponentPosition
+} from "../utils/nft-hockey-api";
+import {exec} from "child_process";
 
 const Field = styled.div`
   background-color: #ffffff;
@@ -103,6 +113,20 @@ export default function Game() {
     const [event, setEvent] = useState<Event>(null);
     const [eventMessagesBuffer, setEventMessagesBuffer] = useState([]);
 
+    function getFivePlayerByPosition(five: Five, position: PlayerPosition): FieldPlayer {
+        for (let playerKey of Object.keys(five.fieldPlayers)) {
+            if (five.fieldPlayers[playerKey].position === position) return five.fieldPlayers[playerKey];
+        }
+    }
+
+    function getOpponent(event: Event): FieldPlayer {
+        if(event.playerWithPuck.userID === myPlayerNumber) {
+            return getFivePlayerByPosition(event.opponentTeam.five, getOpponentPosition(event.playerWithPuck.position));
+        } else {
+            return getFivePlayerByPosition(event.myTeam.five, getOpponentPosition(event.playerWithPuck.position));
+        }
+    }
+
     const GAS_MOVE = 50_000_000_000_000;
     useEffect(()=>{
         if (!event || nonMessageActions.includes(event.action)) return;
@@ -119,14 +143,14 @@ export default function Game() {
             }
         }
         const eventMessage = {
-            playerWithPuck: '',
+            playerWithPuck: event.playerWithPuck.number,
             action: event.action,
-            opponent: '',
+            opponent: getOpponent(event).number,
             side: side,
             username: username,
         };
         if (eventMessagesBuffer.length === 7) {
-            setEventMessagesBuffer(b => [...b.slice(-1), eventMessage]);
+            setEventMessagesBuffer(b => [...b.slice(1), eventMessage]);
         // } else if (eventMessagesBuffer < 7) {
         //     setEventMessagesBuffer(b => [...b, event])
         // } else alert('messages buffer > 7');

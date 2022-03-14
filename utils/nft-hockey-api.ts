@@ -15,6 +15,17 @@ export enum PlayerPosition {
     GoaliePos = "GoaliePos",
 }
 
+export function getOpponentPosition(playerPosition: PlayerPosition): PlayerPosition {
+    switch (playerPosition) {
+        case PlayerPosition.Center: return PlayerPosition.Center;
+        case PlayerPosition.LeftWing: return PlayerPosition.RightDefender;
+        case PlayerPosition.RightDefender: return PlayerPosition.LeftWing;
+        case PlayerPosition.RightWing: return PlayerPosition.LeftDefender;
+        case PlayerPosition.LeftDefender: return PlayerPosition.RightWing;
+        default: return PlayerPosition.GoaliePos;
+    }
+}
+
 export enum PlayerRole {
     // Forward
     Passer = "Passer",
@@ -37,6 +48,7 @@ export type UserID = 1|2;
 export class FieldPlayer {
     constructor(
         public nativePosition: PlayerPosition,
+        public number: number,
         public position: PlayerPosition,
         public positionCoefficient: number,
         public role: PlayerRole,
@@ -47,6 +59,7 @@ export class FieldPlayer {
     static fromJSON(json) {
         return new FieldPlayer(
             json.native_position,
+            json.number,
             json.position,
             json.position_coefficient,
             json.role,
@@ -158,8 +171,10 @@ export enum ActionTypes {
     Goal = "Goal",
     Save = "Save",
     Rebound = "Rebound",
+    StartGame = "StartGame",
     EndOfPeriod = "EndOfPeriod",
     GameFinished = "GameFinished",
+    FaceOff = "FaceOff",
     PassCatched = "PassCatched",
     PuckLose = "PuckLose",
     Overtime = "Overtime",
@@ -173,11 +188,12 @@ export enum ActionTypes {
     SecondTeamChangeActiveFive = "SecondTeamChangeActiveFive",
 }
 export const nonMessageActions: ActionTypes[] =
-    [ActionTypes.Goal, ActionTypes.Rebound, ActionTypes.Save,ActionTypes.Shot];
+    [ActionTypes.StartGame, ActionTypes.EndOfPeriod, ActionTypes.GameFinished, ActionTypes.FaceOff,
+        ActionTypes.Goal, ActionTypes.Rebound, ActionTypes.Save,ActionTypes.Shot];
 
 export class Event {
     constructor(
-        public playerWithPuck: FieldPlayer,
+        public playerWithPuck: FieldPlayer | null,
         public action: ActionTypes,
         public zoneNumber: number,
         public time: number,
@@ -187,7 +203,7 @@ export class Event {
 
     static fromJSON(json) {
         return new Event(
-            FieldPlayer.fromJSON(json.player_with_puck),
+            json.player_with_puck ? FieldPlayer.fromJSON(json.player_with_puck) : null,
             json.action,
             json.zone_number,
             json.time,
