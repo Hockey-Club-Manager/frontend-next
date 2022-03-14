@@ -19,11 +19,13 @@ export async function loadToken(token_id) {
     const nftContract = getNftContract(wallet);
     const marketContract = getMarketContract(wallet);
 
+    let sale = await marketContract.get_sale({ nft_contract_token: nftContractName + "||" + token_id }).catch(() => { });
     let token = await nftContract.nft_token({token_id});
-    let sale = await marketContract.get_sale({ nft_contract_token: marketContractName + ":" + token_id }).catch(() => { });
 
     token = Object.assign(token, sale || {});
 
+    console.log(token)
+    console.log(sale)
     return token;
 }
 
@@ -55,7 +57,7 @@ export async function loadUserTokens() {
             let sale = sales.find(({ token_id: t }) => t === token_id);
             // don't have it in state, go find sale data
             if (!sale) {
-                sale = await marketContract.get_sale({ nft_contract_token: marketContractName + ":" + token_id }).catch(() => { });
+                sale = await marketContract.get_sale({ nft_contract_token: nftContractName + ":" + token_id }).catch(() => { });
             }
             tokens[i] = Object.assign(tokens[i], sale || {});
         }

@@ -64,17 +64,17 @@ export const handleAcceptOffer = async (token_id, ft_token_id) => {
 export const handleRegisterStorage = async () => {
     // WARNING this just pays for 10 "spots" to sell NFTs in marketplace vs. paying each time
 
-    let contract, wallet;
+    let marketContract, wallet;
     await getObjects().then(r => {
         const {wallet: _wallet} = r;
         wallet = _wallet;
-        contract = getMarketContract(_wallet);
+        marketContract = getMarketContract(_wallet);
     });
 
-    await contract.storage_deposit(
+    await marketContract.storage_deposit(
         {},
         GAS,
-        new BN(await contract.storage_amount({}, GAS)).mul(new BN('10'))
+        new BN(await marketContract.storage_amount()).mul(new BN('10'))
     )
 };
 

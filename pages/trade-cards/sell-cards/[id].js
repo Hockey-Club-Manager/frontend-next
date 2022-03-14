@@ -8,7 +8,8 @@ import {SModal} from "../../../components/settings";
 import {useRouter} from "next/router";
 import {getMarketStoragePaid, loadToken} from "../../../state/views";
 import {formatNearAmount, getObjects, getTokenOptions, token2symbol} from "../../../utils/near";
-import {handleSaleUpdate} from "../../../state/actions";
+import {handleAcceptOffer, handleRegisterStorage, handleSaleUpdate} from "../../../state/actions";
+import {parseNearAmount} from "near-api-js/lib/utils/format";
 
 const CardInfo = styled.div`
   background-color: aquamarine;
@@ -21,6 +22,7 @@ export default function SellCardView(ctx) {
     const handleBuyCardPriceModalOpen = () => setShowBuyCardPriceModal(true);
     const handleBuyCardPriceModalClose = () => setShowBuyCardPriceModal(false);
 
+    //const [token_id, setTokenId] = useState();
     const router = useRouter();
     const token_id = router.query.id;
 
@@ -30,21 +32,33 @@ export default function SellCardView(ctx) {
     const [accountID, setAccountID] = useState();
     const [marketStoragePaid, setMarketStoragePaid] = useState();
 
+    /// updating user tokens
+    const [price, setPrice] = useState('');
+    const [ft, setFT] = useState('near');
+    const [saleConditions, setSaleConditions] = useState({});
+
     function loadCard(token_id) {
         loadToken(token_id).then(r => {
+            console.log(r)
+            if (!r?.sale_conditions) {
+                r.sale_conditions = {}
+            }
+            if (!r?.bids) {
+                r.bids = {}
+            }
             setNft(r);
             setIsLoaded(true);
         });
 
         getMarketStoragePaid().then(r => {
             setMarketStoragePaid(r);
-            console.log(r)
         })
 
         getObjects().then(r => {
             const {wallet} = r;
             setAccountID(wallet.account().accountId);
         });
+
     }
 
     const getNumsInString = s => s.match(/^\d+|\d+\b|\d+(?=\w)/g);
@@ -110,26 +124,14 @@ export default function SellCardView(ctx) {
                                     <p>This token has no royalties.</p>
                             }
                             {
-                                Object.keys(sale_conditions).length > 0 && <>
+                                Object.keys(nft?.sale_conditions).length > 0 && <>
                                     <h4>Current Sale Conditions</h4>
                                     {
-                                        Object.entries(sale_conditions).map(([ft_token_id, price]) => <div className="margin-bottom" key={ft_token_id}>
+                                        Object.entries(nft?.sale_conditions).map(([ft_token_id, price]) => <div className="margin-bottom" key={ft_token_id}>
                                             {price === '0' ? 'open' : formatNearAmount(price)} - {token2symbol[ft_token_id]}
                                         </div>)
                                     }
                                 </>
-                            }
-                            {
-                                // saleConditions.length > 0 &&
-                                // 	<div>
-                                // 		<h4>Pending Sale Updates</h4>
-                                // 		{
-                                // 			saleConditions.map(({ price, ft_token_id }) => <div className="margin-bottom" key={ft_token_id}>
-                                // 				{price === '0' ? 'open' : formatNearAmount(price, 4)} - {token2symbol[ft_token_id]}
-                                // 			</div>)
-                                // 		}
-                                // 		<button className="pulse-button" onClick={() => handleSaleUpdate(account, token_id)}>Update Sale Conditions</button>
-                                // 	</div>
                             }
                             {
                                 accountID === nft?.owner_id && <>
@@ -150,7 +152,7 @@ export default function SellCardView(ctx) {
                                             setSaleConditions(newSaleConditions);
                                             setPrice('');
                                             setFT('near');
-                                            handleSaleUpdate(account, token_id, newSaleConditions);
+                                            handleSaleUpdate(nft?.token_id, newSaleConditions);
                                         }}>Add</button>
                                     </div>
                                     <div>
@@ -159,14 +161,14 @@ export default function SellCardView(ctx) {
                                 </>
                             }
                             {
-                                Object.keys(bids).length > 0 && <>
+                                Object.keys(nft?.bids).length > 0 && <>
                                     <h4>Offers</h4>
                                     {
-                                        Object.entries(bids).map(([ft_token_id, { owner_id, price }]) => <div className="offers" key={ft_token_id}>
+                                        Object.entries(nft?.bids).map(([ft_token_id, { owner_id, price }]) => <div className="offers" key={ft_token_id}>
                                             <div>
                                                 {price === '0' ? 'open' : formatNearAmount(price, 4)} - {token2symbol[ft_token_id]}
                                             </div>
-                                            <button onClick={() => handleAcceptOffer(token_id, ft_token_id)}>Accept</button>
+                                            <button onClick={() => handleAcceptOffer(nft?.token_id, ft_token_id)}>Accept</button>
                                         </div>)
                                     }
                                 </>
@@ -174,7 +176,7 @@ export default function SellCardView(ctx) {
                         </>
                         :
                         <div className="center">
-                            <button onClick={() => handleRegisterStorage(account)}>Register with Market to Sell</button>
+                            <button onClick={() => handleRegisterStorage(accountID)}>Register with Market to Sell</button>
                         </div>
                 }
             <SModal show={showBuyCardPriceModal} onHide={handleBuyCardPriceModalClose} centered>
