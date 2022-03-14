@@ -8,8 +8,9 @@ import {Modal} from "react-bootstrap";
 import {useEffect, useState} from "react";
 import InfoModal from "../../../components/InfoModal";
 import {useRouter} from "next/router";
-import {loadTokens} from "../../../state/views";
-import {getObjects} from "../../../utils/near";
+import {loadToken, loadTokens} from "../../../state/views";
+import {formatNearAmount, getObjects, getTokenOptions, handleOffer, token2symbol} from "../../../utils/near";
+import {handleAcceptOffer} from "../../../state/actions";
 
 const CardInfo = styled.div`
   background-color: aquamarine;
@@ -52,6 +53,10 @@ export default function BuyCardView() {
     const handleBuyCardConfirmModalOpen = () => setShowBuyCardConfirmModal(true);
     const handleBuyCardConfirmModalClose = () => setShowBuyCardConfirmModal(false);
 
+    /// market
+    const [offerPrice, setOfferPrice] = useState('');
+    const [offerToken, setOfferToken] = useState('near');
+
     const router = useRouter();
     const id = router.query.id;
 
@@ -61,8 +66,14 @@ export default function BuyCardView() {
     const [accountID, setAccountID] = useState();
 
     function loadCard(id) {
-        loadTokens(id, 1).then(r => {
-            setNft(r[0]);
+        loadToken(id).then(r => {
+            if (!r?.sale_conditions) {
+                r.sale_conditions = {}
+            }
+            if (!r?.bids) {
+                r.bids = {}
+            }
+            setNft(r);
             setIsLoaded(true);
         });
 
@@ -122,6 +133,55 @@ export default function BuyCardView() {
                 </Row>
             </Col>
         </Row>
+        <div>
+            { Object.keys(nft?.sale_conditions).length > 0 && <>
+                <h4>Royalties</h4>
+                {
+                    Object.keys(nft?.royalty).length > 0 ?
+                        Object.entries(nft?.royalty).map(([receiver, amount]) => <div key={receiver}>
+                            {receiver} - {amount / 100}%
+                        </div>)
+                        :
+                        <p>This token has no royalties.</p>
+                }
+            </>
+            }
+            {
+                Object.keys(nft?.sale_conditions).length > 0 && <>
+                    <h4>Sale Conditions</h4>
+                    {
+                        Object.entries(nft?.sale_conditions).map(([ft_token_id, price]) => <div className="margin-bottom" key={ft_token_id}>
+                            {price === '0' ? 'open' : formatNearAmount(price, 4)} - {token2symbol[ft_token_id]}
+                        </div>)
+                    }
+                    {
+                        accountID.length > 0 && accountID !== nft?.owner_id && <>
+                            <input type="number" placeholder="Price" value={offerPrice} onChange={(e) => setOfferPrice(e.target.value)} />
+                            {
+                                getTokenOptions(offerToken, setOfferToken, Object.keys(nft?.sale_conditions))
+                            }
+                            <button onClick={() => handleOffer(nft?.token_id, offerToken, offerPrice)}>Offer</button>
+                        </>
+                    }
+                </>
+            }
+            {
+                Object.keys(nft?.bids).length > 0 && <>
+                    <h4>Offers</h4>
+                    {
+                        Object.entries(nft?.bids).map(([ft_token_id, ft_token_bids]) => ft_token_bids.map(({ owner_id: bid_owner_id, price }) => <div className="offers" key={ft_token_id}>
+                            <div>
+                                {price === '0' ? 'open' : formatNearAmount(price, 4)} - {token2symbol[ft_token_id]} by {bid_owner_id}
+                            </div>
+                            {
+                                accountID === nft?.owner_id &&
+                                <button onClick={() => handleAcceptOffer(nft?.token_id, ft_token_id)}>Accept</button>
+                            }
+                        </div>) )
+                    }
+                </>
+            }
+        </div>
         <BidModal
             show={showBuyCardOfferModal}
             onHide={handleBuyCardOfferModalClose}

@@ -66,7 +66,7 @@ export default function Index() {
                             number={extra && JSON.parse(extra).number}
                             role={extra && JSON.parse(extra).role}
                             stats={extra && JSON.parse(JSON.parse(extra).stats)}
-                            detailsLink={`/trade-cards/buy-cards/${fromIndex + index}`}
+                            detailsLink={`/trade-cards/buy-cards/${token_id}`}
                             cost={utils.format.formatNearAmount(sale_conditions?.near)}
                         />
                     </Row>
