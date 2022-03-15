@@ -131,6 +131,7 @@ export interface GoalieStats {
 
 export class Goalie {
     constructor(
+        public number: number,
         public role: PlayerRole,
         public userID: UserID,
         public stats: GoalieStats,
@@ -138,6 +139,7 @@ export class Goalie {
 
     static fromJSON(json) {
         return new Goalie(
+            json.number,
             json.role,
             json.user_id,
             {
@@ -224,10 +226,12 @@ export class Event {
         public opponentTeam: Team,
     ) {}
 
-    getOpponent(): FieldPlayer {
+    getOpponent(): FieldPlayer | Goalie {
         if(this.playerWithPuck.userID === this.myTeam.goalie.userID) {
+            if (ShotActions.includes(this.action)) return this.opponentTeam.goalie;
             return this.opponentTeam.five.getPlayerByPosition(this.playerWithPuck.getOpponentPosition());
         } else {
+            if (ShotActions.includes(this.action)) return this.myTeam.goalie;
             return this.myTeam.five.getPlayerByPosition(this.playerWithPuck.getOpponentPosition());
         }
     }

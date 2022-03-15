@@ -146,14 +146,11 @@ export default function Game() {
 
     function getEventMessage(event: Event, username: string, side: PlayerSide): MessageAction {
         let playerWithPuck, opponent;
-        if (RegularActions.includes(event.action)) {
+        if (RegularActions.includes(event.action) || ShotActions.includes(event.action)) {
             playerWithPuck = event.playerWithPuck.number;
             opponent = event.getOpponent().number;
-        } else if (ShotActions.includes(event.action)) {
-            playerWithPuck = event.playerWithPuck.number;
-            opponent = 1; // goalie number TODO refactor so it have number
         } else if (GoalieActions.includes(event.action)) {
-            playerWithPuck = 1; // goalie number TODO refactor so it have number
+            playerWithPuck = event.getOpponent().number;
             opponent = 99; // TODO discuss with @kastet99 how to calculate number
             //opponent = event.getOpponent().number;
         } else if (OnePlayerActions.includes(event.action)) {
