@@ -151,7 +151,7 @@ export default function Game() {
             opponent = event.getOpponent().number;
         } else if (GoalieActions.includes(event.action)) {
             playerWithPuck = event.getOpponent().number;
-            opponent = 99; // TODO discuss with @kastet99 how to calculate number
+            opponent = event.playerWithPuck.number;
             //opponent = event.getOpponent().number;
         } else if (OnePlayerActions.includes(event.action)) {
             playerWithPuck = event.playerWithPuck.number;
