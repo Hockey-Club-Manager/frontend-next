@@ -7,13 +7,9 @@ import {getGameContract, getObjects} from "../utils/near";
 import {nanoid} from "nanoid";
 import {
     Event,
-    FieldPlayer,
-    nonMessageActions,
-    PlayerSide,
+    FromGameMessageActions, GoalieActions, OnePlayerActions,
+    PlayerSide, RegularActions, ShotActions, UserActions,
     UserID,
-    Five,
-    PlayerPosition,
-    getOpponentPosition
 } from "../utils/nft-hockey-api";
 
 const Field = styled.div`
@@ -125,15 +121,7 @@ export default function Game() {
     const [event, setEvent] = useState<Event>(null);
     const [eventMessagesBuffer, setEventMessagesBuffer] = useState<DisplayableAction[]>([]);
 
-    function getOpponent(event: Event): FieldPlayer {
-        if(event.playerWithPuck.userID === myPlayerNumber) {
-            return event.opponentTeam.five.getPlayerByPosition(getOpponentPosition(event.playerWithPuck.position));
-        } else {
-            return event.myTeam.five.getPlayerByPosition(getOpponentPosition(event.playerWithPuck.position));
-        }
-    }
-
-    enum DisplayableActionType {MessageAction, NonMessageAction}
+    enum DisplayableActionType {MessageAction, FromGameMessageAction}
     interface MessageAction {
         actionType: DisplayableActionType.MessageAction,
         playerWithPuck: number,
@@ -143,7 +131,7 @@ export default function Game() {
         username: string,
     }
     interface NonMessageAction {
-        actionType: DisplayableActionType.NonMessageAction
+        actionType: DisplayableActionType.FromGameMessageAction
         action: string,
     }
     type DisplayableAction = MessageAction | NonMessageAction;
@@ -156,11 +144,40 @@ export default function Game() {
         } else setEventMessagesBuffer(b => [...b, eventMessage])
     }
 
+    function getEventMessage(event: Event, username: string, side: PlayerSide): MessageAction {
+        let playerWithPuck, opponent;
+        if (RegularActions.includes(event.action)) {
+            playerWithPuck = event.playerWithPuck.number;
+            opponent = event.getOpponent().number;
+        } else if (ShotActions.includes(event.action)) {
+            playerWithPuck = event.playerWithPuck.number;
+            opponent = 1; // goalie number TODO refactor so it have number
+        } else if (GoalieActions.includes(event.action)) {
+            playerWithPuck = 1; // goalie number TODO refactor so it have number
+            opponent = 99; // TODO discuss with @kastet99 how to calculate number
+            //opponent = event.getOpponent().number;
+        } else if (OnePlayerActions.includes(event.action)) {
+            playerWithPuck = event.playerWithPuck.number;
+            opponent = '';
+        } else if (UserActions.includes(event.action)) {
+            playerWithPuck = '';
+            opponent = '';
+        }
+        return {
+            actionType: DisplayableActionType.MessageAction,
+            playerWithPuck: playerWithPuck,
+            action: event.action,
+            opponent: opponent,
+            side: side,
+            username: username,
+        }
+    }
+
     useEffect(() => {
         if (!event) return;
-        if (nonMessageActions.includes(event.action)) {
+        if (FromGameMessageActions.includes(event.action)) {
             const eventMessage: NonMessageAction = {
-                actionType: DisplayableActionType.NonMessageAction,
+                actionType: DisplayableActionType.FromGameMessageAction,
                 action: event.action,
             }
 
@@ -178,14 +195,8 @@ export default function Game() {
                     username = players[0];
                 }
             }
-            const eventMessage: MessageAction = {
-                actionType: DisplayableActionType.MessageAction,
-                playerWithPuck: event.playerWithPuck.number,
-                action: event.action,
-                opponent: getOpponent(event).number,
-                side: side,
-                username: username,
-            };
+
+            const eventMessage: MessageAction = getEventMessage(event, username, side);
 
             pushEventMessage(eventMessage);
         }
@@ -309,7 +320,7 @@ export default function Game() {
                                 side={e.side}
                                 username={e.username}
                             />
-                        else if (e.actionType === DisplayableActionType.NonMessageAction)
+                        else if (e.actionType === DisplayableActionType.FromGameMessageAction)
                             return <NonMessage action={e.action} />
                     }
                     )}

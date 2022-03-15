@@ -15,16 +15,6 @@ export enum PlayerPosition {
     GoaliePos = "GoaliePos",
 }
 
-export function getOpponentPosition(playerPosition: PlayerPosition): PlayerPosition {
-    switch (playerPosition) {
-        case PlayerPosition.Center: return PlayerPosition.Center;
-        case PlayerPosition.LeftWing: return PlayerPosition.RightDefender;
-        case PlayerPosition.RightDefender: return PlayerPosition.LeftWing;
-        case PlayerPosition.RightWing: return PlayerPosition.LeftDefender;
-        case PlayerPosition.LeftDefender: return PlayerPosition.RightWing;
-        default: return PlayerPosition.GoaliePos;
-    }
-}
 
 export enum PlayerRole {
     // Forward
@@ -55,6 +45,17 @@ export class FieldPlayer {
         public userID: UserID,
         public stats: PlayerStats,
     ) {}
+
+    getOpponentPosition(): PlayerPosition {
+        switch (this.position) {
+            case PlayerPosition.Center: return PlayerPosition.Center;
+            case PlayerPosition.LeftWing: return PlayerPosition.RightDefender;
+            case PlayerPosition.RightDefender: return PlayerPosition.LeftWing;
+            case PlayerPosition.RightWing: return PlayerPosition.LeftDefender;
+            case PlayerPosition.LeftDefender: return PlayerPosition.RightWing;
+            default: return PlayerPosition.GoaliePos;
+        }
+    }
 
     static fromJSON(json) {
         return new FieldPlayer(
@@ -193,9 +194,25 @@ export enum ActionTypes {
     FirstTeamChangeActiveFive = "FirstTeamChangeActiveFive",
     SecondTeamChangeActiveFive = "SecondTeamChangeActiveFive",
 }
-export const nonMessageActions: ActionTypes[] =
-    [ActionTypes.StartGame, ActionTypes.EndOfPeriod, ActionTypes.GameFinished, ActionTypes.FaceOff,
-        ActionTypes.Goal, ActionTypes.Rebound, ActionTypes.Save,ActionTypes.Shot];
+export const RegularActions: ActionTypes[] = [
+    ActionTypes.Hit, ActionTypes.Dangle, ActionTypes.PokeCheck, ActionTypes.Battle, ActionTypes.Goal,
+    ActionTypes.PassCatched,
+];
+export const ShotActions: ActionTypes[] = [
+    ActionTypes.Shot,
+];
+export const GoalieActions: ActionTypes[] = [
+    ActionTypes.Save, ActionTypes.Rebound,
+];
+export const OnePlayerActions: ActionTypes[] = [
+    ActionTypes.Pass, ActionTypes.Move, ActionTypes.PuckLose,
+];
+export const UserActions: ActionTypes[] = [
+    ActionTypes.TakeTO, ActionTypes.GoalieOut, ActionTypes.GoalieBack,
+]
+export const FromGameMessageActions: ActionTypes[] = [
+    ActionTypes.StartGame, ActionTypes.EndOfPeriod, ActionTypes.GameFinished, ActionTypes.FaceOff,
+];
 
 export class Event {
     constructor(
@@ -206,6 +223,14 @@ export class Event {
         public myTeam: Team,
         public opponentTeam: Team,
     ) {}
+
+    getOpponent(): FieldPlayer {
+        if(this.playerWithPuck.userID === this.myTeam.goalie.userID) {
+            return this.opponentTeam.five.getPlayerByPosition(this.playerWithPuck.getOpponentPosition());
+        } else {
+            return this.myTeam.five.getPlayerByPosition(this.playerWithPuck.getOpponentPosition());
+        }
+    }
 
     static fromJSON(json) {
         return new Event(
