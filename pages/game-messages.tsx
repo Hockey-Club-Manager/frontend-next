@@ -113,7 +113,7 @@ export default function Game() {
     const [eventsQueue, setEventsQueue] = useState([]);
     const [autoGenerate, setAutoGenerate] = useState(false);
     const [eventsIntervalID, setEventsIntervalID] = useState(null);
-    const [myGameID, setMyGameID] = useState(null);
+    const myGameID = useRef(null);
     const [players, setPlayers] = useState(null);
     const [myPlayerNumber, setMyPlayerNumber] = useState<UserID>(null);
     const [autoReload, setAutoReload] = useState(false);
@@ -152,14 +152,13 @@ export default function Game() {
         } else if (GoalieActions.includes(event.action)) {
             playerWithPuck = event.getOpponent().number;
             opponent = event.playerWithPuck.number;
-            //opponent = event.getOpponent().number;
         } else if (OnePlayerActions.includes(event.action)) {
             playerWithPuck = event.playerWithPuck.number;
             opponent = '';
         } else if (UserActions.includes(event.action)) {
             playerWithPuck = '';
             opponent = '';
-        }
+        } else console.error('getEventMessage: Wrong action type: ', event.action);
         return {
             actionType: DisplayableActionType.MessageAction,
             playerWithPuck: playerWithPuck,
@@ -209,10 +208,11 @@ export default function Game() {
     function incrementLocalReceivedEvents(incrementBy) {
         localStorage.setItem(localReceivedEventsKey, getLocalReceivedEvents() + incrementBy);
     }
+
     function endGame() {
         setLocalReceivedEvents(0);
         clearInterval(eventsIntervalID);
-        setMyGameID(null);
+        myGameID.current = null;
         setPlayers(null);
         setMyPlayerNumber(null);
         console.log('Game ended');
@@ -228,8 +228,9 @@ export default function Game() {
     const handleGenerateEvent = () => {
         if (shouldUpdate.current) {
             shouldUpdate.current = false;
-            if (typeof myGameID === "number") {
-                contract.generate_event({number_of_rendered_events: 0, game_id: myGameID }, GAS_MOVE)
+            if (typeof myGameID.current === "number") {
+                console.log('number of rendered events: ', getLocalReceivedEvents());
+                contract.generate_event({number_of_rendered_events: getLocalReceivedEvents(), game_id: myGameID.current }, GAS_MOVE)
                     .then(e =>  {
                         console.log('generate event: ', e)
                         shouldUpdate.current = true;
@@ -251,16 +252,17 @@ export default function Game() {
                         }
                     })
                     .catch(e => console.error('generate event: ', e));
+            // first page load
             } else {
                 contract.get_available_games({from_index: 0, limit: 50}).then(r => {
                     const accountId = wallet.account().accountId;
                     const myGame = r.filter(game => game[1][0] === accountId || game[1][1] === accountId)[0];
                     const _myGameID = myGame[0];
-                    setMyGameID(_myGameID);
+                    myGameID.current = _myGameID;
                     setPlayers(myGame[1]);
                     setMyPlayerNumber(myGame[1].indexOf(accountId) + 1);
 
-                    contract.generate_event({number_of_rendered_events: 0, game_id: _myGameID }, GAS_MOVE)
+                    contract.generate_event({number_of_rendered_events: getLocalReceivedEvents(), game_id: _myGameID }, GAS_MOVE)
                         .then(e => {
                             console.log('generate event: ', e)
                             shouldUpdate.current = true;

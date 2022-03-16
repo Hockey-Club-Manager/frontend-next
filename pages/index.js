@@ -11,7 +11,7 @@ import {nanoid} from "nanoid";
 import SetTactics from "../components/SetTactics";
 
 function BidModal ({show, onHide}) {
-    const GAS_MAKE_AVAILABLE = 50_000_000_000_000;
+    const GAS_MAKE_AVAILABLE = 300_000_000_000_000;
 
     const router = useRouter();
 
@@ -122,7 +122,7 @@ function BidModal ({show, onHide}) {
                 </Col>
             </Row>
             {availablePlayers && <>
-            {isInList && <Alert variant='danger' siz>Please click "Cancel" before choosing opponent to return your bid</Alert> }
+            {isInList && <Alert variant='danger'>Please click "Cancel" before choosing opponent to return your bid</Alert> }
             <Table striped hover bordered variant='warning'>
                 <thead>
                 <tr>

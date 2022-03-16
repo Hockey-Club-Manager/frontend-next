@@ -53,7 +53,7 @@ export class FieldPlayer {
             case PlayerPosition.RightDefender: return PlayerPosition.LeftWing;
             case PlayerPosition.RightWing: return PlayerPosition.LeftDefender;
             case PlayerPosition.LeftDefender: return PlayerPosition.RightWing;
-            default: return PlayerPosition.GoaliePos;
+            default: console.error("getOpponentPosition: Wrong player position: " + this.position);
         }
     }
 
@@ -174,7 +174,7 @@ export enum ActionTypes {
     Shot = "Shot",
     Move = "Move",
     Hit = "Hit",
-    Dangle = "Dongle",
+    Dangle = "Dangle",
     PokeCheck = "PokeCheck",
     Battle = "Battle",
     Goal = "Goal",

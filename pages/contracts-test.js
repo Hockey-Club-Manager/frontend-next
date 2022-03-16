@@ -10,7 +10,7 @@ import {faCircle, faCheckCircle} from "@fortawesome/free-solid-svg-icons";
 export default function ContractsTest() {
     let contract, wallet;
 
-    const GAS_MAKE_AVAILABLE = 50_000_000_000_000;
+    const GAS_MAKE_AVAILABLE = 300_000_000_000_000;
     const GAS_MOVE = 50_000_000_000_000;
 
     const [isInList, setIsInList] = useState(false);
