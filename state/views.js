@@ -133,6 +133,7 @@ export const loadSales = async (fromIndex = 0, limit = 50) => {
     return sales
 };
 
+// may include nft and non-nft
 export async function loadUserTeam() {
     const {wallet}  = await getObjects();
     const account = wallet.account();
@@ -140,6 +141,16 @@ export async function loadUserTeam() {
 
     if (account) {
         return await contract.get_owner_team({account_id: account.accountId}, GAS);
+    }
+}
+
+export async function loadUserNftTeam() {
+    const {wallet}  = await getObjects();
+    const account = wallet.account();
+    const nftContract = getNftContract(wallet);
+
+    if (account) {
+        return await nftContract.get_owner_nft_team({account_id: account.accountId});
     }
 }
 

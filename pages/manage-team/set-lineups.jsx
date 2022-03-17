@@ -4,7 +4,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faArrowLeft, faArrowUp, faArrowDown, faTimes} from "@fortawesome/free-solid-svg-icons";
 import {CircleBtn, PlayingCard} from "../../components/styled-components";
 import {useEffect, useState} from "react";
-import {loadSales, loadTokens, loadUserNFTPlayers, loadUserTeam} from "../../state/views";
+import {loadSales, loadTokens, loadUserNFTPlayers, loadUserNftTeam, loadUserTeam} from "../../state/views";
 
 const SContainer = styled(Container)`
     svg[data-prefix="fas"] {
@@ -38,13 +38,20 @@ const ActionButton = styled(Button)`
 export default function SetLineup() {
     const [isLoaded, setIsLoaded] = useState(false);
     const [team, setTeam] = useState();
+    const [nft_team, setNFTTeam] = useState();
     const [nft_cards, setNFTCards] = useState();
 
     function loadPlayers() {
         loadUserTeam().then(r => {
             console.log(r);
             setTeam(r);
-            setIsLoaded(true);
+
+            loadUserNftTeam().then(r => {
+                console.log(r);
+                setNFTTeam(r);
+
+                setIsLoaded(true);
+            });
         });
 
         loadUserNFTPlayers().then(r => {

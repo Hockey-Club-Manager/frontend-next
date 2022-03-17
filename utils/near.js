@@ -61,7 +61,7 @@ export function getNftContract(wallet) {
         wallet.account(),
         nftContractName,
         {
-            viewMethods: ["nft_tokens_for_owner", "nft_tokens_batch", "nft_token", "nft_tokens", "nft_total_supply"],
+            viewMethods: ["nft_tokens_for_owner", "nft_tokens_batch", "nft_token", "nft_tokens", "nft_total_supply", "get_owner_nft_team"],
             changeMethods: ["nft_mint", "nft_approve"],
         }
     );
