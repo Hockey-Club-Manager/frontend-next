@@ -3,6 +3,8 @@ import styled from "styled-components";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faArrowLeft, faArrowUp, faArrowDown, faTimes} from "@fortawesome/free-solid-svg-icons";
 import {CircleBtn, PlayingCard} from "../../components/styled-components";
+import {useEffect, useState} from "react";
+import {loadSales, loadTokens, loadUserNFTPlayers, loadUserTeam} from "../../state/views";
 
 const SContainer = styled(Container)`
     svg[data-prefix="fas"] {
@@ -34,6 +36,27 @@ const ActionButton = styled(Button)`
 `
 
 export default function SetLineup() {
+    const [isLoaded, setIsLoaded] = useState(false);
+    const [team, setTeam] = useState();
+    const [nft_cards, setNFTCards] = useState();
+
+    function loadPlayers() {
+        loadUserTeam().then(r => {
+            console.log(r);
+            setTeam(r);
+            setIsLoaded(true);
+        });
+
+        loadUserNFTPlayers().then(r => {
+           console.log(r);
+           setNFTCards(r);
+        });
+    }
+
+    useEffect(() => {
+        loadPlayers();
+    }, []);
+
     return <SContainer fluid className='p-3'>
         <Row className='justify-content-between'>
             <Col className='col-auto'>
