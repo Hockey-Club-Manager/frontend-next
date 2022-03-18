@@ -38,7 +38,7 @@ function BidModal ({show, onHide}) {
 
     const makeAvailable = () => {
         if (bid >= 0.01) {
-            contract.make_available({config: {},}, GAS_MAKE_AVAILABLE, nearAPI.utils.format.parseNearAmount(bid.toString()))
+            contract.make_available({config: {},}, GAS_MAKE_AVAILABLE, nearAPI?.utils.format.parseNearAmount(bid.toString()))
                 .catch(e => console.error(e));
         } else {
             alert('Minimal bid is 0.01');
@@ -73,12 +73,16 @@ function BidModal ({show, onHide}) {
 
     function handleOpponentWaitingUpdate() {
         contract.get_available_games({from_index: 0, limit: 50}).then(r => {
-                const _myGameID = r.filter(game => game[1][0] === wallet.account().accountId || game[1][1] === wallet.account().accountId)[0][0];
+            const gamesWithMyID = r.filter(game => game[1][0] === wallet.account().accountId
+                                                || game[1][1] === wallet.account().accountId);
+            if (gamesWithMyID.length) {
+                const _myGameID = gamesWithMyID[0][0];
                 const isInGame = typeof _myGameID === "number";
 
                 if(isInGame) {
                     router.push('/game-messages');
                 }
+            } else console.log('No one have selected your bid yet');
         }).catch(e => console.error('get available games: ', e));
     }
 
@@ -122,7 +126,7 @@ function BidModal ({show, onHide}) {
                 </Col>
             </Row>
             {availablePlayers && <>
-            {isInList && <Alert variant='danger'>Please click "Cancel" before choosing opponent to return your bid</Alert> }
+            {isInList && <Alert variant='danger'>Please click <b>Cancel</b> before choosing opponent to return your bid</Alert> }
             <Table striped hover bordered variant='warning'>
                 <thead>
                 <tr>
@@ -164,18 +168,16 @@ export default function Home() {
     function handlePlayGame() {
         contract.get_available_games({from_index: 0, limit: 50}).then(r => {
             if (r.length > 0) {
-                const _myGameID = r.filter(game => game[1][0] === wallet.account().accountId || game[1][1] === wallet.account().accountId)[0][0];
-                const isInGame = typeof _myGameID === "number";
+                const gamesWithMyID = r.filter(game => game[1][0] === wallet.account().accountId
+                                                    || game[1][1] === wallet.account().accountId);
+                if (gamesWithMyID.length) {
+                    const _myGameID = gamesWithMyID[0][0];
+                    const isInGame = typeof _myGameID === "number";
 
-                if(isInGame) {
-                    router.push('/game-messages');
-                } else {
-                    showBid();
-                }
-            } else {
-                showBid();
-            }
-
+                    if (isInGame) router.push('/game-messages');
+                    else showBid();
+                } else showBid();
+            } else showBid();
         }).catch(e => console.error('get available games: ', e));
     }
 

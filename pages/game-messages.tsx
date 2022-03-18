@@ -252,29 +252,45 @@ export default function Game() {
                         }
                     })
                     .catch(e => console.error('generate event: ', e));
+            }
             // first page load
-            } else {
+            else {
                 contract.get_available_games({from_index: 0, limit: 50}).then(r => {
-                    const accountId = wallet.account().accountId;
-                    const myGame = r.filter(game => game[1][0] === accountId || game[1][1] === accountId)[0];
-                    const _myGameID = myGame[0];
-                    myGameID.current = _myGameID;
-                    setPlayers(myGame[1]);
-                    setMyPlayerNumber(myGame[1].indexOf(accountId) + 1);
+                    if (r.length) {
+                        const accountId = wallet.account().accountId;
+                        const gamesWithMyID = r.filter(game => game[1][0] === accountId || game[1][1] === accountId);
+                        if (gamesWithMyID.length) {
+                            const myGame = gamesWithMyID[0][0];
+                            const _myGameID = myGame[0];
+                            myGameID.current = _myGameID;
+                            setPlayers(myGame[1]);
+                            setMyPlayerNumber(myGame[1].indexOf(accountId) + 1);
 
-                    contract.generate_event({number_of_rendered_events: getLocalReceivedEvents(), game_id: _myGameID }, GAS_MOVE)
-                        .then(e => {
-                            console.log('generate event: ', e)
-                            shouldUpdate.current = true;
-                            incrementLocalReceivedEvents(e.length);
-                            if(e[e.length - 1]?.action === 'GameFinished') {
-                                endGame();
-                            } else {
-                                const eventObjects = e.map(_e => Event.fromJSON(_e));
-                                setEventsQueue(eventObjects);
-                            }
-                        })
-                        .catch(e => console.error('generate event: ', e));
+                            contract.generate_event({number_of_rendered_events: getLocalReceivedEvents(), game_id: _myGameID }, GAS_MOVE)
+                                .then(e => {
+                                    console.log('generate event: ', e)
+                                    shouldUpdate.current = true;
+                                    incrementLocalReceivedEvents(e.length);
+                                    if(e[e.length - 1]?.action === 'GameFinished') {
+                                        endGame();
+                                    } else {
+                                        const eventObjects = e.map(_e => Event.fromJSON(_e));
+                                        setEventsQueue(eventObjects);
+                                    }
+                                })
+                                .catch(e => console.error('generate event: ', e));
+                        }
+                        // Some games are available but not mine
+                        else {
+                            alert('Game finished');
+                            router.push('/');
+                        }
+                    }
+                    // No games available
+                    else {
+                        alert('Game finished');
+                        router.push('/');
+                    }
                 }).catch(e => console.error('get available games: ', e));
             }
         }
