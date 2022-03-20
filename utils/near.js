@@ -104,4 +104,5 @@ export const handleOffer = async (token_id, offerToken, offerPrice) => {
 const NEAR_NOMINATION = 1_000_000_000_000_000_000_000_000;
 
 // Converts yoctoNEAR to human-readable amount
+// TODO remove it's usage
 export const formatNearAmount = balance => balance / NEAR_NOMINATION;
