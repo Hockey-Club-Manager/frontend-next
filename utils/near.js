@@ -3,7 +3,7 @@ import {parseNearAmount} from "near-api-js/lib/utils/format";
 
 export const gameContractName = "uriyyuriy.testnet";
 export const marketContractName = "new_nft_market.testnet";
-export const nftContractName = "new_nft_contract.testnet";
+export const nftContractName = "nft_0_0.testnet";
 
 const GAS = "200000000000000";
 
@@ -40,7 +40,7 @@ export function getGameContract(wallet) {
         gameContractName,
         {
             viewMethods: ['get_available_players', 'get_available_games', 'is_already_in_the_waiting_list', 'get_game_config',],
-            changeMethods: ['make_available', 'start_game', 'generate_event', 'make_unavailable', 'internal_stop_game'],
+            changeMethods: ['make_available', 'start_game', 'generate_event', 'make_unavailable', 'internal_stop_game', 'get_owner_team'],
         }
     );
 }
@@ -61,7 +61,7 @@ export function getNftContract(wallet) {
         wallet.account(),
         nftContractName,
         {
-            viewMethods: ["nft_tokens_for_owner", "nft_tokens_batch", "nft_token", "nft_tokens", "nft_total_supply"],
+            viewMethods: ["nft_tokens_for_owner", "nft_tokens_batch", "nft_token", "nft_tokens", "nft_total_supply", "get_owner_nft_team"],
             changeMethods: ["nft_mint", "nft_approve"],
         }
     );
