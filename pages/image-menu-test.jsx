@@ -2,6 +2,10 @@ import styled from "styled-components";
 import React, {Component} from "react";
 import {TransformComponent, TransformWrapper} from "react-zoom-pan-pinch";
 import {Button} from "react-bootstrap";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCog } from "@fortawesome/free-solid-svg-icons";
+import { faHockeyPuck } from "@fortawesome/free-solid-svg-icons";
+import Link from "next/link";
 
 const DraggableImg = styled.div`
     background: url("/menu-image.png") no-repeat center center fixed;
@@ -13,46 +17,84 @@ const DraggableImg = styled.div`
 `;
 
 const MenuButton = styled(Button)`
-    position: relative;
-    top: 190px;
-    left: 150px;
-    width: 200px;
+    position: fixed;
+    left: 10%;
+    top: 40%;
+    background-color: #ffff;
+    max-width: 150px;
     background: linear-gradient(177.07deg, #0C2FAD -41.5%, #7391FF 97.56%);
     border: 6px solid #415FCA;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
     border-radius: 8px;
     margin: 0;
     padding: 10px;
-    font-family: 'Orbitron';
-    font-style: normal;
     font-weight: 600;
-    font-size: 35px;
-    line-height: 44px;
+    font-size: 30px;
     text-align: center;
     color: #FFFFFF;
     text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 `
 
 
-let doubleClick = {
-    disabled: true
+const MenuNav = styled(Button)`
+    background: #415FCA;
+    font-family: 'Orbitron';
+    font-style: normal;
+    width: 250px;
+    font-weight: 500;
+    font-size: 27px;
+    line-height: 34px;
+    text-align: center;
+    color: #ffff;
+    border-radius: 0px 0px 26px 0px;
+
+`
+
+
+let wheel = {
+    step: 0.1
+}
+
+let pinch = {
+    step: 1
+}
+
+let alignmentAnimation = {
+    sizeX: 1,
+    sizeY: 1,
+    animationTime: 100,
+    velocityAlignmentTime: 100,
 }
 
 class ImageMenu extends Component {
     render() {
         return (
-            <TransformWrapper centerOnInit={true} initialScale={1.6} doubleClick={doubleClick}>
+
+            <TransformWrapper alignmentAnimation={alignmentAnimation}  centerOnInit={true}
+                              pinch={pinch} wheel={wheel} initialScale={1.6}>
+
                 <TransformComponent>
                     <DraggableImg>
-                        <MenuButton>TRADE CARDS</MenuButton>
-                        <MenuButton style={{left: "1150px", top: "390px"}}>MANAGE TEAM</MenuButton>
-                        <MenuButton style={{left: "400px", top: "350px"}}>PLAY GAME</MenuButton>
+                            <MenuNav style={{position: "fixed", right: "0", borderRadius: "0px 0px 0px 26px"}}>
+                             <span style={{padding: "10px"}}>Settings</span>
+                            <FontAwesomeIcon  style={{height: "50px", color: "#FFF"}} icon={faCog}/>
+                            </MenuNav >
+                            <MenuNav>
+                                <span style={{padding: "10px"}}>About project</span>
+                             <FontAwesomeIcon  style={{height: "50px", color: "#FFF"}} icon={faHockeyPuck}/>
+                            </MenuNav>
+                        <Link href="/trade-cards/buy-cards"><MenuButton>TRADE CARDS</MenuButton></Link>
+                        <Link href="/manage-team/set-lineups"><MenuButton style={{left: "70%"}}>MANAGE TEAM</MenuButton></Link>
+                        <Link href="/game"><MenuButton style={{left: "40%"}}>PLAY GAME</MenuButton></Link>
                     </DraggableImg>
                 </TransformComponent>
             </TransformWrapper>
+
         );
     }
 }
+
+
 export default ImageMenu
 
 
