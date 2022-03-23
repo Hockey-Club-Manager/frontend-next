@@ -13,33 +13,65 @@ export const CircleBtn = styled(Button)`
   }
 `
 export const PlayingCard = styled.div`
-  background-color: wheat;
+  background-image: url(${ props => props.image});
+  background-size: cover;
   height: 125px;
   width: 80px;
-  
+  padding: 0;
+  margin: 0;
   &, & img {
     border-radius: 10px;
   }
-
   &.goalie {
     margin-top: 140px;
   }
   &.goalie-game {
     margin-top: 220px;
   }
-  
   &.border {
     border: 1px solid black !important;
   }
   &.bench img {
     border: 3px solid white !important;
   }
-  
   &.sm, &.sm img {
     height: 90px;
     width: 65px;
   }
-  
+  &.bottom-left {
+    margin-left: 40px;
+  }
+  &.bottom-right {
+    margin-right: 40px;
+  }
+`
+
+export const UnselectedCard = styled.div`
+  background: black;
+  background-size: cover;
+  height: 125px;
+  width: 80px;
+  padding: 0;
+  margin: 0;
+  &, & img {
+    border-radius: 10px;
+  }
+  &.goalie {
+    margin-top: 140px;
+  }
+  &.goalie-game {
+    margin-top: 220px;
+  }
+  &.border {
+    border: 1px solid black !important;
+  }
+  &.bench img {
+    border: 3px solid white !important;
+  }
+  &.sm, &.sm img {
+    height: 90px;
+    width: 65px;
+  }
   &.bottom-left {
     margin-left: 40px;
   }
